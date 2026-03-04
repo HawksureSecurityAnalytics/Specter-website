@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<script>
+function showPage(id) {
+  ['home','features','demo','pricing'].forEach(function(p) {
+    var el = document.getElementById('page-' + p);
+    if (el) el.style.display = 'none';
+  });
+  var el = document.getElementById('page-' + id);
+  if (el) el.style.display = 'block';
+  window.scrollTo(0, 0);
+  if (id === 'demo') {
+    setTimeout(function(){ if(typeof replayScan==='function') replayScan(); }, 400);
+    setTimeout(function(){ if(typeof replayPDF==='function')  replayPDF();  }, 600);
+    setTimeout(function(){ if(typeof replaySites==='function') replaySites(); }, 800);
+  }
+}
+function goFeat(id) {
+  showPage('features');
+  setTimeout(function() {
+    var el = document.getElementById('feat-' + id) || document.getElementById(id);
+    if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.pageYOffset - 110);
+  }, 60);
+}
+function scrollToId(id) {
+  var el = document.getElementById(id);
+  if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.pageYOffset - 60);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('button[type="button"]').forEach(function(btn) {
+    btn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      var oc = btn.getAttribute('onclick');
+      if (oc) { try { eval(oc); } catch(err) {} }
+    });
+  });
+});
+
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specter — Network Diagnostics</title>
+<style>
+
+:root{--bg:#04080C;--bg2:#0A0E1A;--bg3:#0D1520;--c1:#00E5FF;--c2:#00FF9D;--warn:#FFB700;--danger:#FF3B5C;--t1:#E0F0FF;--t2:#7A9AB0;--t3:#3A5060;--bd:rgba(0,229,255,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:'Courier New',monospace;overflow-x:hidden}a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(4,8,12,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.logo{display:flex;align-items:center;gap:10px}.logo-icon{color:var(--c1);font-size:20px}.logo-text{color:var(--c1);font-size:16px;font-weight:700;letter-spacing:4px}.logo-sub{color:var(--t3);font-size:8px;letter-spacing:3px;margin-top:2px}
+.nav-links{display:flex;gap:28px}.nav-links a{color:var(--t2);font-size:10px;letter-spacing:2px;transition:.2s}.nav-links a:hover{color:var(--c1)}
+.nav-cta{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:10px;font-weight:700;letter-spacing:2px;padding:9px 20px;clip-path:polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%)}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:110px 40px 70px;text-align:center;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:40px 40px}
+.hero-glow{position:absolute;top:15%;left:50%;transform:translateX(-50%);width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.07) 0%,transparent 70%);pointer-events:none}
+.badge{display:inline-block;border:1px solid rgba(0,229,255,.3);color:var(--c1);font-size:9px;letter-spacing:3px;padding:5px 14px;margin-bottom:22px;position:relative;z-index:1}
+.hero-icon{color:var(--c1);font-size:56px;margin-bottom:12px;position:relative;z-index:1}
+h1{font-size:clamp(48px,10vw,96px);font-weight:700;letter-spacing:10px;background:linear-gradient(135deg,#fff 0%,var(--c1) 50%,var(--c2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;z-index:1;line-height:1}
+.hero-sub{color:var(--t2);font-size:11px;letter-spacing:3px;margin-top:12px;position:relative;z-index:1}
+.hero-desc{max-width:520px;color:var(--t2);font-size:13px;line-height:1.8;margin:20px auto 32px;font-family:sans-serif;position:relative;z-index:1}
+.btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.bp{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:13px 28px;clip-path:polygon(9px 0%,100% 0%,calc(100% - 9px) 100%,0% 100%);display:inline-flex;align-items:center;gap:6px}
+.bs{border:1px solid var(--bd);color:var(--c1);font-size:11px;letter-spacing:2px;padding:13px 28px;display:inline-flex;align-items:center;gap:6px}
+.bv{border:1px solid rgba(180,127,255,.35);color:#b47fff;font-size:11px;letter-spacing:2px;padding:13px 28px;display:inline-flex;align-items:center;gap:6px}
+.term{display:inline-block;background:var(--bg3);border:1px solid var(--bd);padding:10px 18px;font-size:11px;color:var(--c2);margin-top:20px;position:relative;z-index:1}
+.phones{display:flex;justify-content:center;align-items:flex-end;gap:18px;margin-top:52px;position:relative;z-index:1;flex-wrap:wrap}
+.ph{width:170px;background:var(--bg2);border:1px solid var(--bd);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;flex-shrink:0}
+.ph.main{width:210px;transform:translateY(-18px);box-shadow:0 28px 80px rgba(0,229,255,.12),0 0 0 1px rgba(0,229,255,.2)}
+.notch{height:22px;background:var(--bg);margin:7px auto;width:55%;border-radius:11px}
+.ps{padding:10px}.pl{color:var(--c1);font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:7px}
+.pst{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:8px}
+.psc{background:var(--bg3);padding:5px;border-radius:3px;text-align:center}
+.pn{font-size:14px;font-weight:700}.plb{color:var(--t3);font-size:6px;letter-spacing:1px}
+.pd{background:var(--bg3);border-radius:5px;padding:7px;margin-bottom:5px;border-left:2px solid var(--c1)}
+.pd.cam{border-left-color:var(--danger)}.pd.win{border-left-color:var(--warn)}.pd.gw{border-left-color:var(--c2)}
+.pi{font-size:8px;font-weight:700}.pdn{color:var(--t2);font-size:7px;margin-top:1px}
+.pp2{display:flex;gap:2px;margin-top:3px;flex-wrap:wrap}
+.pt{background:rgba(0,229,255,.1);color:var(--c1);font-size:5px;padding:1px 3px;border-radius:2px}
+.pt.r{background:rgba(255,59,92,.15);color:var(--danger)}
+.sb{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:7px;font-weight:700;padding:5px;border-radius:3px;text-align:center;margin-bottom:5px}
+.prg{height:2px;background:var(--t3);border-radius:1px;margin-bottom:6px}
+.prf{height:100%;width:65%;background:linear-gradient(90deg,var(--c1),var(--c2));border-radius:1px}
+@keyframes sl{0%{transform:translateY(-100%);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(500%);opacity:0}}
+.sl{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c1),transparent);animation:sl 3s ease-in-out infinite;pointer-events:none}
+.sbar{display:flex;justify-content:center;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);background:var(--bg2);flex-wrap:wrap}
+.si{flex:1;min-width:120px;max-width:180px;padding:24px 16px;text-align:center;border-right:1px solid var(--bd)}.si:last-child{border-right:none}
+.sn{font-size:30px;font-weight:700;color:var(--c1);letter-spacing:2px}.slb{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px}
+.sec{padding:80px 40px;max-width:1060px;margin:0 auto}
+.sl2{color:var(--c1);font-size:9px;letter-spacing:4px;margin-bottom:10px}
+.stl{font-size:clamp(22px,4vw,40px);font-weight:700;letter-spacing:4px}.stl span{color:var(--c1)}
+.sd{color:var(--t2);font-size:13px;line-height:1.8;max-width:540px;margin-top:14px;font-family:sans-serif}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;margin-top:48px;border:1px solid var(--bd)}
+.fc{background:var(--bg2);padding:30px 28px;transition:background .2s;display:block}.fc:hover{background:var(--bg3)}
+.fi{font-size:24px;margin-bottom:12px}.ft{color:var(--t1);font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:8px}
+.fd{color:var(--t2);font-size:12px;line-height:1.7;font-family:sans-serif}
+.ftg{display:inline-block;margin-top:10px;font-size:8px;letter-spacing:2px;padding:2px 8px;border:1px solid rgba(0,229,255,.2);color:var(--c1)}
+.how{background:var(--bg2);padding:80px 40px}.how-i{max-width:1060px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:24px;margin-top:48px}
+.step{position:relative;padding:28px 24px;border:1px solid var(--bd);background:var(--bg)}
+.step::before{content:attr(data-n);position:absolute;top:-1px;left:-1px;background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px}
+.sti{font-size:28px;margin-bottom:12px;margin-top:6px}.stt{color:var(--t1);font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:8px}
+.std{color:var(--t2);font-size:12px;line-height:1.7;font-family:sans-serif}
+.dlb{margin-top:48px;padding:52px 40px;border:1px solid var(--bd);background:var(--bg2);position:relative;overflow:hidden;text-align:center}
+.dlb::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--c1),var(--c2),transparent)}
+.dlg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.05) 0%,transparent 70%);pointer-events:none}
+.dlt{font-size:clamp(20px,3vw,36px);font-weight:700;letter-spacing:4px;position:relative;z-index:1}
+.dld{color:var(--t2);font-size:13px;margin:12px 0 28px;font-family:sans-serif;position:relative;z-index:1}
+.dlbs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.reqs{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:28px;position:relative;z-index:1}
+.req{display:flex;align-items:center;gap:6px;color:var(--t2);font-size:11px}.rdot{width:5px;height:5px;border-radius:50%;background:var(--c2)}
+footer{border-top:1px solid var(--bd);padding:32px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;background:var(--bg2)}
+.flo{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:4px}.fsu{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px}
+.fli{display:flex;gap:20px}.fli a{color:var(--t3);font-size:10px;letter-spacing:1px;transition:.2s}.fli a:hover{color:var(--c1)}
+.fco{color:var(--t3);font-size:9px}
+@media(max-width:768px){nav{padding:12px 20px}.nav-links{display:none}.sec{padding:60px 20px}.how{padding:60px 20px}.dlb{padding:36px 20px}footer{flex-direction:column;text-align:center}}
+
+
+:root{--bg:#04080C;--bg2:#0A0E1A;--bg3:#0D1520;--c1:#00E5FF;--c2:#00FF9D;--warn:#FFB700;--danger:#FF3B5C;--t1:#E0F0FF;--t2:#7A9AB0;--t3:#3A5060;--bd:rgba(0,229,255,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:'Courier New',monospace;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(4,8,12,.98);border-bottom:1px solid var(--bd)}
+.logo-text{color:var(--c1);font-size:15px;font-weight:700;letter-spacing:4px}
+.nav-cta{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:10px;font-weight:700;padding:9px 16px;text-decoration:none}
+.page-hero{padding:100px 24px 40px;text-align:center;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.ph-title{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:6px;background:linear-gradient(135deg,#fff,var(--c1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ph-sub{color:var(--t2);font-size:11px;letter-spacing:2px;margin-top:10px}
+.tab-strip{display:flex;overflow-x:auto;background:var(--bg2);border-bottom:1px solid var(--bd);position:sticky;top:52px;z-index:50;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-strip::-webkit-scrollbar{display:none}
+.tbt{padding:14px 16px;color:var(--t3);font-size:9px;letter-spacing:2px;white-space:nowrap;border:none;border-bottom:3px solid transparent;flex-shrink:0;background:none;font-family:'Courier New',monospace;cursor:pointer;-webkit-tap-highlight-color:rgba(0,229,255,0.2);touch-action:manipulation;min-width:44px;min-height:44px}
+.feat-sec{padding:48px 24px;border-bottom:4px solid rgba(0,229,255,0.06)}
+.feat-sec.alt{background:var(--bg2)}
+.fs-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:32px}
+.fs-icon-box{width:52px;height:52px;border:1px solid var(--bd);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.fs-lbl{color:var(--c1);font-size:9px;letter-spacing:3px;margin-bottom:5px}
+.fs-title{font-size:clamp(18px,5vw,32px);font-weight:700;letter-spacing:3px}
+.fs-title span{color:var(--c1)}
+.fs-desc{color:var(--t2);font-size:13px;line-height:1.8;font-family:sans-serif;margin-top:8px}
+.mock{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:28px}
+.mock-bar{background:var(--bg3);padding:9px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%}
+.mock-lbl{color:var(--t2);font-size:9px;letter-spacing:2px;margin-left:6px}
+.mock-body{padding:14px}
+.dlist{display:flex;flex-direction:column;gap:14px}
+.ditem{display:flex;gap:12px;align-items:flex-start;background:var(--bg3);padding:14px;border-radius:6px}
+.dicon{width:30px;height:30px;background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.12);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border-radius:3px}
+.dtitle{color:var(--t1);font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px}
+.ddesc{color:var(--t2);font-size:12px;line-height:1.6;font-family:sans-serif}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.tag{font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:2px}
+.tc{background:rgba(0,229,255,.1);color:var(--c1);border:1px solid rgba(0,229,255,.2)}
+.tg{background:rgba(0,255,157,.1);color:var(--c2);border:1px solid rgba(0,255,157,.2)}
+.tr{background:rgba(255,59,92,.1);color:var(--danger);border:1px solid rgba(255,59,92,.2)}
+.tw{background:rgba(255,183,0,.1);color:var(--warn);border:1px solid rgba(255,183,0,.2)}
+.mdev{background:var(--bg3);border-radius:5px;padding:8px 10px;margin-bottom:6px;border-left:3px solid var(--c1);display:flex;justify-content:space-between;align-items:center}
+.mdev.cam{border-left-color:var(--danger)}.mdev.win{border-left-color:var(--warn)}.mdev.gw{border-left-color:var(--c2)}
+.mip{font-size:10px;font-weight:700}.mtype{color:var(--t2);font-size:9px;margin-top:2px}
+.mbadge{font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700}
+.bc{background:rgba(255,59,92,.15);color:var(--danger)}.bh{background:rgba(255,107,53,.15);color:#FF6B35}.bs2{background:rgba(0,255,157,.1);color:var(--c2)}
+.prog{height:3px;background:var(--bg);border-radius:2px;margin:6px 0}
+.pf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--c1),var(--c2))}
+.alert{background:var(--bg3);border-radius:5px;padding:9px 12px;margin-bottom:7px;border-left:3px solid var(--danger)}
+.alert.med{border-left-color:var(--warn)}
+.atitle{color:var(--t1);font-size:10px;font-weight:700}
+.asub{color:var(--t2);font-size:9px;margin-top:2px;font-family:sans-serif}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.pb{padding:8px;border-radius:4px}
+.pb.d{background:rgba(255,59,92,.07);border:1px solid rgba(255,59,92,.2)}
+.pb.s{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.12)}
+.pn{font-size:12px;font-weight:700}.ps2{color:var(--t2);font-size:8px;margin-top:2px}
+.map-wrap{position:relative;height:200px;background:var(--bg3);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:20px 20px}
+.node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%)}
+.nc{border-radius:50%;border:2px solid var(--c1);background:var(--bg3);display:flex;align-items:center;justify-content:center}
+.nlb{font-size:7px;color:var(--t2);text-align:center;line-height:1.2}
+.diag-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.db{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.15);padding:10px;border-radius:5px;text-align:center}
+.di{font-size:14px}.dl2{color:var(--c1);font-size:8px;margin-top:3px;letter-spacing:1px}
+.dr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,229,255,.05)}
+.dr:last-child{border-bottom:none}
+.dk{color:var(--t3);font-size:9px}.dv{font-size:10px;font-weight:700}
+.rrow{background:var(--bg3);border-radius:5px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.rt{color:var(--t1);font-size:10px;font-weight:700}.rs{color:var(--t2);font-size:9px;margin-top:2px;font-family:sans-serif}
+.site-card{background:var(--bg3);border-radius:5px;padding:12px;margin-bottom:8px}
+.cta-bar{background:var(--bg2);border-top:1px solid var(--bd);padding:52px 24px;text-align:center}
+.bp{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:13px 24px;display:inline-block;margin:4px;text-decoration:none}
+.bsec{border:1px solid var(--bd);color:var(--c1);font-size:11px;letter-spacing:2px;padding:13px 24px;display:inline-block;margin:4px;text-decoration:none}
+footer{border-top:1px solid var(--bd);padding:28px 24px;background:var(--bg2);text-align:center}
+.flo{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:4px}
+.fsu{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:16px}
+.fli{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.fli a{color:var(--t3);font-size:10px}
+.fco{color:var(--t3);font-size:9px;margin-top:16px}
+
+
+:root{--bg:#04080C;--bg2:#0A0E1A;--bg3:#0D1520;--c1:#00E5FF;--c2:#00FF9D;--warn:#FFB700;--danger:#FF3B5C;--purple:#9B59B6;--t1:#E0F0FF;--t2:#7A9AB0;--t3:#3A5060;--bd:rgba(0,229,255,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:'Courier New',monospace;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(4,8,12,.98);border-bottom:1px solid var(--bd)}
+.logo-text{color:var(--c1);font-size:15px;font-weight:700;letter-spacing:4px}
+.nav-cta{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:10px;font-weight:700;padding:9px 16px;border:none;font-family:'Courier New',monospace;cursor:pointer}
+
+.hero{padding:90px 24px 40px;text-align:center;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.hero-badge{display:inline-block;border:1px solid rgba(0,229,255,.3);color:var(--c1);font-size:9px;letter-spacing:3px;padding:5px 14px;margin-bottom:16px}
+.hero-title{font-size:clamp(26px,7vw,48px);font-weight:700;letter-spacing:5px;background:linear-gradient(135deg,#fff,var(--c1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:var(--t2);font-size:12px;margin-top:10px;font-family:sans-serif}
+
+.demo-section{padding:48px 24px;border-bottom:1px solid var(--bd)}
+.demo-section.alt{background:var(--bg2)}
+.demo-label{color:var(--c1);font-size:9px;letter-spacing:3px;margin-bottom:8px}
+.demo-title{font-size:clamp(20px,5vw,32px);font-weight:700;letter-spacing:3px;margin-bottom:8px}
+.demo-title span{color:var(--c1)}
+.demo-desc{color:var(--t2);font-size:13px;font-family:sans-serif;line-height:1.8;margin-bottom:28px}
+
+/* PHONE */
+.phone-wrap{display:flex;justify-content:center;margin-bottom:28px}
+.phone{width:270px;background:#050A0F;border-radius:36px;border:2px solid #1C2A3A;box-shadow:0 0 50px rgba(0,229,255,0.1),0 20px 60px rgba(0,0,0,0.7);overflow:hidden}
+.phone-notch{background:#050A0F;height:26px;display:flex;align-items:center;justify-content:center}
+.notch-pill{width:72px;height:14px;background:#0A0F14;border-radius:20px;border:1px solid #1C2A3A}
+.phone-screen{background:#000;overflow:hidden;position:relative;height:500px}
+.phone-home{background:#050A0F;height:18px;display:flex;align-items:center;justify-content:center}
+.home-bar{width:56px;height:3px;background:#1C2A3A;border-radius:2px}
+
+.screen{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;transition:opacity 0.4s ease;overflow:hidden}
+.screen.active{opacity:1}
+
+/* APP HEADER - matches screenshots exactly */
+.app-header{background:#050A0F;padding:8px 10px 6px}
+.app-header-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.app-logo-icon{width:28px;height:28px;border:1.5px solid var(--c1);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.app-logo-icon::before{content:'';position:absolute;width:6px;height:6px;background:var(--danger);border-radius:50%;top:4px;left:50%;transform:translateX(-50%)}
+.app-logo-icon::after{content:'';position:absolute;bottom:5px;left:4px;right:4px;height:1.5px;background:var(--c1);border-radius:1px}
+.app-name{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:3px;font-family:'Courier New',monospace}
+.app-sub{color:var(--t2);font-size:7px;letter-spacing:2px;font-family:'Courier New',monospace}
+.app-stats{display:flex;gap:14px;padding:0 2px}
+.stat-item{}
+.stat-num{font-size:14px;font-weight:700;font-family:'Courier New',monospace;line-height:1}
+.stat-lbl{font-size:6px;letter-spacing:1px;color:var(--t2);font-family:'Courier New',monospace;margin-top:1px}
+
+/* TAB STRIP */
+.app-tabs{display:flex;border-bottom:1px solid rgba(0,229,255,0.15);background:#050A0F;overflow:hidden}
+.app-tab{flex:1;padding:6px 2px;font-size:7px;letter-spacing:1px;color:var(--t3);text-align:center;font-family:'Courier New',monospace;border-bottom:2px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-tab.active{color:var(--c1);border-bottom-color:var(--c1)}
+
+/* SCAN BAR */
+.scan-bar-row{display:flex;gap:6px;padding:6px 8px;background:#050A0F;border-bottom:1px solid rgba(0,229,255,0.08)}
+.net-box{background:#0A0F16;border:1px solid rgba(0,229,255,0.2);padding:4px 7px;font-size:8px;color:var(--c1);font-family:'Courier New',monospace;flex:1}
+.net-label{font-size:6px;color:var(--t3);margin-bottom:1px}
+.btn-quick{background:var(--c1);color:#04080C;font-size:8px;font-weight:700;padding:4px 10px;border:none;font-family:'Courier New',monospace;letter-spacing:1px}
+.btn-deep{background:var(--purple);color:#fff;font-size:8px;font-weight:700;padding:4px 10px;border:none;font-family:'Courier New',monospace;letter-spacing:1px}
+
+/* STATUS LINE */
+.status-line{padding:4px 8px;font-size:7px;font-family:'Courier New',monospace;display:flex;justify-content:space-between;border-bottom:1px solid rgba(0,229,255,0.05)}
+.status-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--c2);margin-right:4px;vertical-align:middle}
+.status-dot.scanning{animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* DEVICE CARDS - matches screenshots */
+.dev-scroll{overflow-y:auto;height:calc(500px - 130px);padding:6px}
+.dev-card{background:#0A0F16;border:1px solid rgba(0,229,255,0.1);border-radius:6px;padding:8px 10px;margin-bottom:6px;transform:translateY(30px);opacity:0;transition:transform 0.35s ease,opacity 0.35s ease}
+.dev-card.show{transform:translateY(0);opacity:1}
+.dev-card.highlight{border-left:3px solid var(--c2)}
+.dev-card-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.dev-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;margin-top:2px}
+.dev-info{flex:1;min-width:0}
+.dev-ip-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:2px}
+.dev-ip{font-size:10px;font-weight:700;font-family:'Courier New',monospace}
+.risk-badge{font-size:7px;font-weight:700;padding:2px 6px;border-radius:3px;border:1px solid}
+.rb-critical{color:var(--danger);border-color:var(--danger);background:rgba(255,59,92,0.15)}
+.rb-high{color:var(--warn);border-color:var(--warn);background:rgba(255,183,0,0.15)}
+.rb-safe{color:var(--c2);border-color:var(--c2);background:rgba(0,255,157,0.12)}
+.rb-you{color:var(--c2);border-color:var(--c2);background:rgba(0,255,157,0.12)}
+.gw-badge{color:var(--warn);border-color:var(--warn);background:rgba(255,183,0,0.15);font-size:7px;font-weight:700;padding:2px 5px;border-radius:3px;border:1px solid}
+.dev-name{font-size:9px;font-weight:700;color:var(--t1);font-family:'Courier New',monospace}
+.dev-mid{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.type-tag{font-size:7px;padding:2px 7px;border-radius:3px;border:1px solid;font-family:'Courier New',monospace}
+.tt-camera{color:var(--danger);border-color:var(--danger);background:rgba(255,59,92,0.1)}
+.tt-router{color:var(--warn);border-color:var(--warn);background:rgba(255,183,0,0.1)}
+.tt-windows{color:var(--t1);border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.05)}
+.tt-android{color:var(--c1);border-color:rgba(0,229,255,0.3);background:rgba(0,229,255,0.08)}
+.tt-iphone{color:var(--purple);border-color:rgba(155,89,182,0.4);background:rgba(155,89,182,0.1)}
+.signal{display:flex;align-items:flex-end;gap:1.5px}
+.signal-bar{width:3px;border-radius:1px}
+.sig-label{font-size:7px;font-family:'Courier New',monospace;margin-left:2px}
+.sig-excellent{color:var(--c2)}
+.sig-good{color:var(--warn)}
+.sig-fair{color:var(--danger)}
+.tool-btns{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.tool-btn{font-size:7px;padding:3px 6px;border-radius:3px;border:1px solid;font-family:'Courier New',monospace;display:flex;align-items:center;gap:3px}
+.tb-webui{color:var(--c1);border-color:rgba(0,229,255,0.4);background:rgba(0,229,255,0.08)}
+.tb-trace{color:var(--c2);border-color:rgba(0,255,157,0.4);background:rgba(0,255,157,0.08)}
+.tb-ping{color:var(--purple);border-color:rgba(155,89,182,0.4);background:rgba(155,89,182,0.1)}
+.tb-name{color:var(--warn);border-color:rgba(255,183,0,0.4);background:rgba(255,183,0,0.08)}
+.tb-dns{color:var(--t2);border-color:rgba(122,154,176,0.3);background:rgba(122,154,176,0.06)}
+.port-tags{display:flex;flex-wrap:wrap;gap:3px}
+.port-tag{font-size:7px;padding:1px 5px;border-radius:2px;border:1px solid;font-family:'Courier New',monospace}
+.pt-red{color:var(--danger);border-color:rgba(255,59,92,0.5);background:rgba(255,59,92,0.08)}
+.pt-cyan{color:var(--c1);border-color:rgba(0,229,255,0.4);background:rgba(0,229,255,0.06)}
+.pt-more{color:var(--t2);border-color:rgba(122,154,176,0.3);background:rgba(122,154,176,0.06)}
+
+/* PROGRESS BAR (scanning) */
+.scan-progress-bar{height:2px;background:linear-gradient(90deg,var(--c1),var(--c2));width:0%;transition:width 0.2s ease;position:absolute;top:0;left:0}
+
+/* SITES SCREEN */
+.sites-list{padding:8px}
+.site-card-app{background:#0A0F16;border:1px solid rgba(0,229,255,0.1);border-radius:6px;padding:10px 12px;margin-bottom:6px;transform:translateX(-30px);opacity:0;transition:transform 0.4s ease,opacity 0.4s ease}
+.site-card-app.show{transform:translateX(0);opacity:1}
+.site-card-app.active-site{border-left:3px solid var(--c2)}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sc-name{font-size:10px;font-weight:700;font-family:'Courier New',monospace}
+.sc-risk{font-size:7px;padding:2px 6px;border-radius:3px;border:1px solid;font-weight:700}
+.sc-meta{font-size:7px;color:var(--t2);font-family:'Courier New',monospace;margin-bottom:5px}
+.sc-tags{display:flex;gap:4px;flex-wrap:wrap}
+.sc-tag{font-size:6px;padding:1px 5px;border-radius:2px;border:1px solid;font-family:'Courier New',monospace}
+
+/* SAVE SITE ANIMATION */
+.save-toast{position:absolute;bottom:12px;left:10px;right:10px;background:rgba(0,255,157,0.15);border:1px solid var(--c2);border-radius:5px;padding:8px 12px;display:flex;align-items:center;gap:8px;opacity:0;transform:translateY(20px);transition:opacity 0.3s ease,transform 0.3s ease;z-index:10}
+.save-toast.show{opacity:1;transform:translateY(0)}
+.save-toast-text{font-size:8px;color:var(--c2);font-family:'Courier New',monospace;letter-spacing:1px}
+
+/* BULLETS */
+.feat-bullets{display:flex;flex-direction:column;gap:10px}
+.fbullet{display:flex;gap:12px;align-items:flex-start;background:var(--bg3);padding:12px;border-radius:6px}
+.fbullet-icon{width:28px;height:28px;background:rgba(0,229,255,.07);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;border-radius:3px;color:var(--c1);font-weight:700;font-family:'Courier New',monospace}
+.fbullet-title{font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:3px}
+.fbullet-desc{color:var(--t2);font-size:11px;font-family:sans-serif;line-height:1.5}
+
+.replay-btn{display:block;width:100%;border:1px solid var(--bd);color:var(--t2);font-size:9px;letter-spacing:2px;padding:10px;text-align:center;background:none;font-family:'Courier New',monospace;cursor:pointer;border-radius:4px;margin-top:16px}
+
+.cta-bar{padding:48px 24px;text-align:center;background:var(--bg2);border-top:1px solid var(--bd)}
+.cta-btn{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:14px 28px;border:none;font-family:'Courier New',monospace;cursor:pointer;display:inline-block;margin:4px}
+.cta-btn2{border:1px solid var(--bd);color:var(--c1);font-size:11px;letter-spacing:2px;padding:14px 28px;background:none;font-family:'Courier New',monospace;cursor:pointer;display:inline-block;margin:4px;text-decoration:none}
+
+footer{border-top:1px solid var(--bd);padding:28px 24px;background:var(--bg2);text-align:center}
+.flo{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:4px}
+.fsu{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:16px}
+.fli{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.fli a{color:var(--t3);font-size:10px}
+.fco{color:var(--t3);font-size:9px;margin-top:16px}
+
+
+:root{--bg:#04080C;--bg2:#0A0E1A;--bg3:#0D1520;--c1:#00E5FF;--c2:#00FF9D;--warn:#FFB700;--danger:#FF3B5C;--t1:#E0F0FF;--t2:#7A9AB0;--t3:#3A5060;--bd:rgba(0,229,255,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:'Courier New',monospace;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(4,8,12,.98);border-bottom:1px solid var(--bd)}
+.logo-text{color:var(--c1);font-size:15px;font-weight:700;letter-spacing:4px}
+.nav-back{border:1px solid var(--bd);color:var(--c1);font-size:10px;font-weight:700;padding:8px 14px;letter-spacing:2px}
+.hero{padding:100px 24px 48px;text-align:center;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.hero-badge{display:inline-block;border:1px solid rgba(0,229,255,.3);color:var(--c1);font-size:9px;letter-spacing:3px;padding:5px 14px;margin-bottom:16px}
+.hero-title{font-size:clamp(28px,8vw,52px);font-weight:700;letter-spacing:5px;background:linear-gradient(135deg,#fff,var(--c1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:var(--t2);font-size:12px;letter-spacing:1px;margin-top:10px;font-family:sans-serif;line-height:1.6}
+.plans{padding:40px 20px;display:flex;flex-direction:column;gap:20px;max-width:480px;margin:0 auto}
+
+/* CARD */
+.card{border:1px solid var(--bd);border-radius:12px;overflow:hidden;background:var(--bg2)}
+.card.featured{border-color:var(--c1);box-shadow:0 0 30px rgba(0,229,255,0.08)}
+.card.pro-card{border-color:var(--warn);box-shadow:0 0 30px rgba(255,183,0,0.08)}
+.card-head{padding:24px 20px 20px}
+.card-badge{font-size:8px;letter-spacing:3px;padding:3px 10px;border-radius:2px;display:inline-block;margin-bottom:12px}
+.cb-free{background:rgba(0,229,255,.1);color:var(--c1);border:1px solid rgba(0,229,255,.2)}
+.cb-home{background:rgba(0,255,157,.1);color:var(--c2);border:1px solid rgba(0,255,157,.2)}
+.cb-pro{background:rgba(255,183,0,.1);color:var(--warn);border:1px solid rgba(255,183,0,.2)}
+.popular-tag{background:var(--warn);color:#04080C;font-size:8px;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:2px;display:inline-block;margin-left:8px;vertical-align:middle}
+.card-name{font-size:22px;font-weight:700;letter-spacing:3px;margin-bottom:6px}
+.card-desc{color:var(--t2);font-size:11px;font-family:sans-serif;line-height:1.6}
+.price-row{display:flex;align-items:baseline;gap:6px;margin:16px 0 4px}
+.price-amt{font-size:38px;font-weight:700;letter-spacing:-1px}
+.price-free{color:var(--c1)}
+.price-home{color:var(--c2)}
+.price-pro{color:var(--warn)}
+.price-cur{font-size:14px;color:var(--t2);margin-right:2px}
+.price-note{color:var(--t3);font-size:9px;letter-spacing:2px}
+.card-divider{height:1px;background:var(--bd);margin:0 20px}
+.card-features{padding:20px}
+.feat-label{color:var(--t3);font-size:8px;letter-spacing:3px;margin-bottom:12px}
+.frow{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.fcheck{font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.fcheck.yes{color:var(--c2)}
+.fcheck.no{color:var(--t3)}
+.fcheck.warn{color:var(--warn)}
+.ftext{font-size:11px;font-family:sans-serif;line-height:1.5}
+.ftext.muted{color:var(--t3)}
+.card-cta{padding:0 20px 24px}
+.btn-free{display:block;border:1px solid var(--bd);color:var(--c1);font-size:11px;font-weight:700;letter-spacing:2px;padding:14px;text-align:center;border-radius:4px;font-family:'Courier New',monospace}
+.btn-home{display:block;background:rgba(0,255,157,.1);border:1px solid var(--c2);color:var(--c2);font-size:11px;font-weight:700;letter-spacing:2px;padding:14px;text-align:center;border-radius:4px;font-family:'Courier New',monospace}
+.btn-pro{display:block;background:linear-gradient(135deg,var(--warn),#FF6B35);color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:14px;text-align:center;border-radius:4px;font-family:'Courier New',monospace}
+
+/* COMPARE TABLE */
+.compare{padding:40px 20px;max-width:480px;margin:0 auto}
+.compare-title{color:var(--t3);font-size:9px;letter-spacing:3px;margin-bottom:16px;text-align:center}
+.ctable{width:100%;border-collapse:collapse}
+.ctable th{padding:10px 8px;font-size:9px;letter-spacing:2px;text-align:center;border-bottom:1px solid var(--bd);color:var(--t2)}
+.ctable th:first-child{text-align:left}
+.ctable td{padding:10px 8px;font-size:10px;text-align:center;border-bottom:1px solid rgba(0,229,255,.04);font-family:sans-serif}
+.ctable td:first-child{text-align:left;color:var(--t2);font-size:10px}
+.ctable tr:last-child td{border-bottom:none}
+.tick{color:var(--c2);font-weight:700}
+.cross{color:var(--t3)}
+.partial{color:var(--warn);font-size:9px}
+
+/* FAQ */
+.faq{padding:40px 20px 20px;max-width:480px;margin:0 auto}
+.faq-title{color:var(--t3);font-size:9px;letter-spacing:3px;margin-bottom:20px;text-align:center}
+.faq-item{border:1px solid var(--bd);border-radius:6px;padding:16px;margin-bottom:10px;background:var(--bg2)}
+.faq-q{color:var(--c1);font-size:11px;font-weight:700;margin-bottom:6px}
+.faq-a{color:var(--t2);font-size:11px;font-family:sans-serif;line-height:1.6}
+
+/* FOOTER */
+.cta-bottom{background:var(--bg2);border-top:1px solid var(--bd);padding:40px 24px;text-align:center}
+footer{border-top:1px solid var(--bd);padding:28px 24px;background:var(--bg2);text-align:center}
+.flo{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:4px}
+.fsu{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:16px}
+.fli{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.fli a{color:var(--t3);font-size:10px}
+.fco{color:var(--t3);font-size:9px;margin-top:16px}
+
+/* Page visibility managed via inline styles */
+
+/* Button element resets for nav-style buttons */
+button.bp, button.bv, button.bs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+}
+button.bp { background: linear-gradient(135deg,var(--c1),var(--c2)); color: #04080C; font-size:11px; font-weight:700; letter-spacing:2px; padding:13px 24px; border:none; }
+button.bv { border: 1px solid rgba(180,127,255,.35); color: #b47fff; font-size:11px; letter-spacing:2px; padding:13px 24px; background:none; }
+button.bs { border: 1px solid var(--bd); color: var(--c1); font-size:11px; letter-spacing:2px; padding:13px 24px; background:none; }
+button.fc { display:block; width:100%; text-align:left; background:var(--bg2); padding:26px 22px; border:none; cursor:pointer; font-family:inherit; }
+button.fc:active { background:var(--bg3); }
+</style>
+</head>
+<body>
+
+
+<nav>
+  <button type="button" onclick="showPage('home')" style="display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:0">
+    <span style="color:#00E5FF;font-size:18px">◈</span>
+    <div style="text-align:left">
+      <div style="color:#00E5FF;font-size:14px;font-weight:700;letter-spacing:4px;font-family:'Courier New',monospace">SPECTER</div>
+      <div style="color:#3A5060;font-size:7px;letter-spacing:3px;font-family:'Courier New',monospace">NETWORK DIAGNOSTICS</div>
+    </div>
+  </button>
+  <div style="display:flex;gap:16px">
+    <button type="button" onclick="showPage('features')" style="background:none;border:none;color:#7A9AB0;font-size:10px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;padding:4px 0">FEATURES</button>
+    <button type="button" onclick="showPage('demo')"     style="background:none;border:none;color:#7A9AB0;font-size:10px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;padding:4px 0">DEMO</button>
+  </div>
+  <button type="button" onclick="showPage('pricing')" style="background:linear-gradient(135deg,#00E5FF,#00FF9D);color:#04080C;font-size:10px;font-weight:700;letter-spacing:2px;padding:9px 14px;border:none;font-family:'Courier New',monospace;cursor:pointer">⬇ GET APK</button>
+</nav>
+
+
+<!-- HOME -->
+<div id="page-home" style="display:block">
+
+
+<div class="hero">
+  <div class="hero-grid"></div><div class="hero-glow"></div>
+  <div class="badge">◈ STANDALONE ANDROID APK — NO ROOT REQUIRED</div>
+  <div class="hero-icon">◈</div>
+  <h1>SPECTER</h1>
+  <div class="hero-sub">NETWORK DIAGNOSTICS &amp; SECURITY SCANNER</div>
+  <p class="hero-desc">Instantly scan your network, detect every connected device, identify open ports and assess security risks — all from your Android phone.</p>
+  <div class="btns">
+    <button class="bp" onclick="showPage('pricing')">⬇ DOWNLOAD APK</button>
+    <button class="bv" onclick="showPage('features')" style="cursor:pointer">🔍 EXPLORE FEATURES</button>
+    <button class="bs" onclick="scrollToId('how-section')" style="cursor:pointer">HOW IT WORKS →</button>
+  </div>
+  <div class="term"><span style="color:#3A5060">$</span> scanning 192.168.1.0/24 — 10 devices found • 7 risks</div>
+  <div class="phones">
+    <div class="ph" style="transform:translateY(10px) rotate(-4deg)">
+      <div class="notch"></div><div class="ps"><div class="pl">◈ SPECTER</div>
+      <div class="pst"><div class="psc"><div class="pn" style="color:#00E5FF">10</div><div class="plb">DEVICES</div></div><div class="psc"><div class="pn" style="color:#00FF9D">10</div><div class="plb">ONLINE</div></div><div class="psc"><div class="pn" style="color:#FFB700">27</div><div class="plb">PORTS</div></div><div class="psc"><div class="pn" style="color:#FF3B5C">7</div><div class="plb">RISKS</div></div></div>
+      <div class="pd cam"><div class="pi" style="color:#FF3B5C">192.168.1.136 ⚠</div><div class="pdn">Hikvision Camera</div><div class="pp2"><span class="pt r">80/</span><span class="pt r">554/</span></div></div>
+      <div class="pd gw"><div class="pi" style="color:#00FF9D">192.168.1.1 🌐</div><div class="pdn">Network Gateway</div><div class="pp2"><span class="pt">80/</span><span class="pt">443/</span></div></div>
+    </div></div>
+    <div class="ph main"><div class="sl"></div><div class="notch"></div><div class="ps"><div class="pl">◈ SPECTER</div>
+      <div class="sb">⚡ QUICK SCAN</div><div class="prg"><div class="prf"></div></div>
+      <div style="color:#7A9AB0;font-size:7px;margin-bottom:7px">Scanning 192.168.1.0/24 — 120/254, 7 found...</div>
+      <div class="pd gw"><div class="pi" style="color:#00FF9D">192.168.1.1 🌐</div><div class="pdn">Router / Gateway</div><div class="pp2"><span class="pt r">22/</span><span class="pt r">23/</span><span class="pt">80/</span></div></div>
+      <div class="pd win"><div class="pi" style="color:#FFB700">192.168.1.30 ⚠</div><div class="pdn">Windows PC</div><div class="pp2"><span class="pt r">445/</span><span class="pt">8080/</span></div></div>
+      <div class="pd cam"><div class="pi" style="color:#FF3B5C">192.168.1.136 ⚠</div><div class="pdn">Hikvision Camera</div><div class="pp2"><span class="pt">80/</span><span class="pt r">554/</span></div></div>
+    </div></div>
+    <div class="ph" style="transform:translateY(10px) rotate(4deg)"><div class="notch"></div><div class="ps">
+      <div class="pl" style="margin-bottom:7px">DIAGNOSTICS</div>
+      <div style="background:#0D1520;padding:7px;border-radius:4px;margin-bottom:5px"><div style="color:#3A5060;font-size:6px">PING RESULTS</div><div style="color:#00FF9D;font-size:8px;margin-top:2px">4ms avg • Excellent</div></div>
+      <div style="background:#0D1520;padding:7px;border-radius:4px"><div style="color:#3A5060;font-size:6px">OPEN PORTS</div><div class="pp2" style="margin-top:3px"><span class="pt r">22/SSH</span><span class="pt">80/HTTP</span><span class="pt r">554/RTSP</span></div></div>
+    </div></div>
+  </div>
+</div>
+
+<div class="sbar">
+  <div class="si"><div class="sn">254</div><div class="slb">IPs SCANNED</div></div>
+  <div class="si"><div class="sn" style="color:#00FF9D">30+</div><div class="slb">PORTS CHECKED</div></div>
+  <div class="si"><div class="sn" style="color:#FFB700">100+</div><div class="slb">DEVICE TYPES</div></div>
+  <div class="si"><div class="sn" style="color:#FF3B5C">0</div><div class="slb">ROOT REQUIRED</div></div>
+</div>
+
+<div class="sec">
+  <div class="sl2">// CAPABILITIES</div>
+  <h2 class="stl">EVERYTHING YOU NEED TO<br><span>SECURE YOUR NETWORK</span></h2>
+  <p class="sd">Professional-grade network scanning tools for security installers, IT professionals, and network engineers.</p>
+  <div class="fg">
+    <button class="fc" onclick="goFeat('scan')" style="cursor:pointer"><div class="fi">⚡</div><div class="ft">QUICK &amp; DEEP SCAN</div><div class="fd">Two modes for every situation. Ping sweep for speed, full port analysis for depth. Real-time results.</div><span class="ftg">LEARN MORE →</span></button>
+    <button class="fc" onclick="goFeat('devices')" style="cursor:pointer"><div class="fi">📡</div><div class="ft">DEVICE DETECTION</div><div class="fd">Auto-identifies 100+ device types including Hikvision, Dahua, HiLook cameras, Windows PCs, smart TVs.</div><span class="ftg">LEARN MORE →</span></button>
+    <button class="fc" onclick="goFeat('ports')" style="cursor:pointer"><div class="fi">🔌</div><div class="ft">PORT SCANNING</div><div class="fd">30+ common ports per device. HTTP, HTTPS, SSH, Telnet, RTSP, SMB, RDP — labelled with service names.</div><span class="ftg">LEARN MORE →</span></button>
+    <button class="fc" onclick="goFeat('risk')" style="cursor:pointer"><div class="fi">⚠</div><div class="ft">RISK ASSESSMENT</div><div class="fd">Risk score 0-100 per device. Based on CVEs, dangerous ports and default credentials.</div><span class="ftg">LEARN MORE →</span></button>
+    <button class="fc" onclick="goFeat('map')" style="cursor:pointer"><div class="fi">🗺</div><div class="ft">NETWORK MAP</div><div class="fd">Visual topology of all devices, colour-coded by risk. Tap any node to inspect device details.</div><span class="ftg">LEARN MORE →</span></button>
+    <button class="fc" onclick="goFeat('diag')" style="cursor:pointer"><div class="fi">📊</div><div class="ft">DIAGNOSTICS</div><div class="fd">Built-in ping, traceroute, DNS lookup and Web UI access per device. Full toolkit in one tap.</div><span class="ftg">LEARN MORE →</span></button>
+  </div>
+  <div style="text-align:center;margin-top:32px"><button class="bv" onclick="showPage('features')" style="cursor:pointer">🔍 VIEW FULL FEATURE GUIDE →</button></div>
+</div>
+
+<div class="how" id="how"><div class="how-i">
+  <div class="sl2">// WORKFLOW</div>
+  <h2 class="stl">HOW <span>SPECTER</span> WORKS</h2>
+  <p class="sd">Up and running in seconds. No configuration, no root, no extra apps.</p>
+  <div class="steps">
+    <div class="step" data-n="01"><div class="sti">📲</div><div class="stt">INSTALL APK</div><div class="std">Download and install directly on Android. No Play Store, no root, no extra apps required.</div></div>
+    <div class="step" data-n="02"><div class="sti">📶</div><div class="stt">CONNECT TO WIFI</div><div class="std">Connect to the network to scan. Specter auto-detects your subnet and local IP address.</div></div>
+    <div class="step" data-n="03"><div class="sti">⚡</div><div class="stt">START SCANNING</div><div class="std">Tap QUICK or DEEP scan. Devices appear in real-time as Specter sweeps the network.</div></div>
+    <div class="step" data-n="04"><div class="sti">🔐</div><div class="stt">REVIEW RESULTS</div><div class="std">See devices, ports, risk scores and alerts. Tap any device to run full diagnostics.</div></div>
+  </div>
+</div></div>
+
+<div class="sec" id="download">
+  <div class="sl2">// GET STARTED</div>
+  <h2 class="stl">DOWNLOAD <span>SPECTER</span></h2>
+  <p class="sd" style="margin:12px auto">Free standalone APK. No account required.</p>
+  <div class="dlb"><div class="dlg"></div>
+    <div style="font-size:44px;margin-bottom:14px;position:relative;z-index:1">◈</div>
+    <div class="dlt">SPECTER APK</div>
+    <div style="color:#3A5060;font-size:9px;letter-spacing:2px;margin-top:7px;position:relative;z-index:1">NETWORK DIAGNOSTICS FOR ANDROID</div>
+    <p class="dld">Standalone APK — installs in seconds, works on any WiFi.<br>Android 5.0+. No internet required after install.</p>
+    <div class="dlbs">
+      <button class="bp" onclick="showPage('pricing')">⬇ DOWNLOAD LATEST APK</button>
+      <a class="bs" href="https://github.com/HawksureSecurityAnalytics/Specter-APK" target="_blank">🔗 VIEW ON GITHUB</a>
+    </div>
+    <div class="reqs"><div class="req"><div class="rdot"></div>Android 5.0+</div><div class="req"><div class="rdot"></div>No root required</div><div class="req"><div class="rdot"></div>WiFi access</div><div class="req"><div class="rdot"></div>~15MB</div></div>
+    <div style="color:#3A5060;font-size:9px;margin-top:20px;position:relative;z-index:1">Open source · Built with Python, Flask &amp; Android</div>
+  </div>
+</div>
+
+<footer>
+  <div><div class="flo">◈ SPECTER</div><div class="fsu">NETWORK DIAGNOSTICS</div></div>
+  <div class="fli"><button type="button" onclick="showPage('home')" style="cursor:pointer">HOME</button><button type="button" onclick="showPage('features')" style="cursor:pointer">FEATURES</button><button type="button" onclick="showPage('demo')" style="cursor:pointer">DEMO</button><button type="button" onclick="scrollToId('how-section')" style="cursor:pointer">HOW IT WORKS</button><a href="https://github.com/HawksureSecurityAnalytics/Specter-APK" target="_blank">GITHUB</a><button type="button" onclick="scrollToId('download-section')" style="cursor:pointer">DOWNLOAD</button></div>
+  <div class="fco">© 2026 SPECTER — HAWKSURE SECURITY ANALYTICS</div>
+</footer>
+
+<div style="border-top:1px solid rgba(0,229,255,0.12);padding:28px 24px;background:#0A0E1A;text-align:center">
+  <div style="color:#00E5FF;font-size:13px;font-weight:700;letter-spacing:4px">◈ SPECTER</div>
+  <div style="color:#3A5060;font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:14px">NETWORK DIAGNOSTICS</div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:14px">
+    <button type="button" onclick="showPage('home')"     style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">HOME</button>
+    <button type="button" onclick="showPage('features')" style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">FEATURES</button>
+    <button type="button" onclick="showPage('demo')"     style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">DEMO</button>
+    <button type="button" onclick="showPage('pricing')"  style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">PRICING</button>
+    <a href="https://github.com/HawksureSecurityAnalytics/Specter-APK" target="_blank" style="color:#3A5060;font-size:10px;font-family:'Courier New',monospace">GITHUB</a>
+  </div>
+  <div style="color:#3A5060;font-size:9px">© 2026 SPECTER — HAWKSURE SECURITY ANALYTICS</div>
+</div>
+
+</div>
+
+<!-- FEATURES -->
+<div id="page-features" style="display:none">
+
+
+<div class="page-hero">
+  <div style="display:inline-block;border:1px solid rgba(0,229,255,.3);color:var(--c1);font-size:9px;letter-spacing:3px;padding:5px 14px;margin-bottom:16px">COMPLETE FEATURE GUIDE</div>
+  <h1 class="ph-title">SPECTER FEATURES</h1>
+  <p class="ph-sub">Tap a tab to jump to any section</p>
+</div>
+
+<div class="tab-strip">
+  <button class="tbt" onclick="goTo('scan')">SCANNING</button>
+  <button class="tbt" onclick="goTo('devices')">DEVICES</button>
+  <button class="tbt" onclick="goTo('ports')">PORTS</button>
+  <button class="tbt" onclick="goTo('risk')">RISK</button>
+  <button class="tbt" onclick="goTo('map')">MAP</button>
+  <button class="tbt" onclick="goTo('diag')">DIAGNOSTICS</button>
+  <button class="tbt" onclick="goTo('alerts')">ALERTS</button>
+  <button class="tbt" onclick="goTo('sites')">SITES</button>
+  <button class="tbt" onclick="goTo('reports')">REPORTS</button>
+</div>
+
+<div class="feat-sec" id="scan">
+  <div class="fs-head">
+    <div class="fs-icon-box">01</div>
+    <div>
+      <div class="fs-lbl">// 01 NETWORK SCANNING</div>
+      <h2 class="fs-title">QUICK &amp; <span>DEEP SCAN</span></h2>
+      <p class="fs-desc">Two scan modes for every scenario. Quick scan sweeps the subnet in seconds using ICMP ping. Deep scan performs full port analysis on every discovered host.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">QUICK SCAN IN PROGRESS</span></div>
+    <div class="mock-body">
+      <div style="color:var(--c1);font-size:10px;margin-bottom:4px">Quick scan: finding hosts...</div>
+      <div class="prog"><div class="pf" style="width:72%"></div></div>
+      <div style="color:var(--t2);font-size:9px;margin-bottom:10px;font-family:sans-serif">183/254 hosts checked - 8 found</div>
+      <div class="mdev gw"><div><div class="mip" style="color:#00FF9D">192.168.1.1</div><div class="mtype">Router / Gateway</div></div><span class="mbadge bs2">Safe</span></div>
+      <div class="mdev cam"><div><div class="mip" style="color:#FF3B5C">192.168.1.136</div><div class="mtype">Hikvision Camera</div></div><span class="mbadge bc">Critical</span></div>
+      <div class="mdev win"><div><div class="mip" style="color:#FFB700">192.168.1.30</div><div class="mtype">Windows PC</div></div><span class="mbadge bh">High</span></div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">Q</div><div><div class="dtitle">QUICK SCAN</div><div class="ddesc">ICMP ping sweep across 254 IPs using 100 simultaneous threads. Completes in 30 to 60 seconds.</div><div class="tags"><span class="tag tc">30-60s</span><span class="tag tg">100 THREADS</span></div></div></div>
+    <div class="ditem"><div class="dicon">D</div><div><div class="dtitle">DEEP SCAN</div><div class="ddesc">Full port analysis on every discovered host. 30+ ports per device with CVE enrichment and vendor lookup.</div><div class="tags"><span class="tag tc">THOROUGH</span><span class="tag tw">2-5 MINS</span></div></div></div>
+    <div class="ditem"><div class="dicon">R</div><div><div class="dtitle">REAL-TIME RESULTS</div><div class="ddesc">Devices appear as they are discovered. Live progress bar with host count and percentage complete.</div><div class="tags"><span class="tag tg">LIVE UPDATES</span></div></div></div>
+    <div class="ditem"><div class="dicon">A</div><div><div class="dtitle">AUTO NETWORK DETECT</div><div class="ddesc">Specter auto-detects your WiFi subnet and local IP. No manual configuration needed.</div><div class="tags"><span class="tag tc">AUTOMATIC</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec alt" id="devices">
+  <div class="fs-head">
+    <div class="fs-icon-box">02</div>
+    <div>
+      <div class="fs-lbl">// 02 DEVICE IDENTIFICATION</div>
+      <h2 class="fs-title">SMART <span>DEVICE DETECTION</span></h2>
+      <p class="fs-desc">Identifies 100+ device types using port fingerprinting, HTTP banners, mDNS and vendor OUI lookup. Hikvision, Dahua, Windows PCs, smart TVs and more.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">DETECTED DEVICES</span></div>
+    <div class="mock-body">
+      <div class="mdev gw"><div><div class="mip" style="color:#00FF9D">192.168.1.1</div><div class="mtype">Router / Gateway</div></div><span class="mbadge bs2">GW</span></div>
+      <div class="mdev cam"><div><div class="mip" style="color:#FF3B5C">192.168.1.136</div><div class="mtype">Hikvision Camera</div></div><span class="mbadge bc">Critical</span></div>
+      <div class="mdev cam"><div><div class="mip" style="color:#FF3B5C">192.168.1.113</div><div class="mtype">IP Camera</div></div><span class="mbadge bh">High</span></div>
+      <div class="mdev win"><div><div class="mip" style="color:#FFB700">192.168.1.30</div><div class="mtype">Windows PC</div></div><span class="mbadge bh">High</span></div>
+      <div class="mdev"><div><div class="mip" style="color:#00E5FF">192.168.1.49</div><div class="mtype">Android</div></div><span class="mbadge bs2">YOU</span></div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">C</div><div><div class="dtitle">CCTV AND NVR</div><div class="ddesc">Hikvision, HiLook, Dahua, Reolink, Axis via HTTP banners and port signatures including RTSP 554 and ISAPI 8443.</div><div class="tags"><span class="tag tr">HIKVISION</span><span class="tag tr">DAHUA</span></div></div></div>
+    <div class="ditem"><div class="dicon">W</div><div><div class="dtitle">WINDOWS AND LINUX</div><div class="ddesc">Windows via SMB 445, NetBIOS 139, RDP 3389. Linux and Android via SSH 22 and service banners.</div><div class="tags"><span class="tag tw">WINDOWS</span><span class="tag tc">LINUX</span></div></div></div>
+    <div class="ditem"><div class="dicon">T</div><div><div class="dtitle">SMART TVs AND IoT</div><div class="ddesc">Samsung, LG, Sony, Hisense, Roku via mDNS, UPnP and HTTP title analysis.</div><div class="tags"><span class="tag tc">SMART TV</span><span class="tag tg">IoT</span></div></div></div>
+    <div class="ditem"><div class="dicon">R</div><div><div class="dtitle">ROUTERS AND EXTENDERS</div><div class="ddesc">TP-Link, ASUS, Netgear, MikroTik, D-Link by HTTP title and management port signatures.</div><div class="tags"><span class="tag tc">TP-LINK</span><span class="tag tc">ASUS</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec" id="ports">
+  <div class="fs-head">
+    <div class="fs-icon-box">03</div>
+    <div>
+      <div class="fs-lbl">// 03 PORT ANALYSIS</div>
+      <h2 class="fs-title">DEEP <span>PORT SCANNING</span></h2>
+      <p class="fs-desc">30+ ports scanned per device, each labelled with its service name. Instantly see what protocols are exposed with no lookup needed.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">PORT SCAN - 192.168.1.1</span></div>
+    <div class="mock-body">
+      <div style="color:var(--t3);font-size:9px;letter-spacing:2px;margin-bottom:8px">OPEN PORTS</div>
+      <div class="pg">
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">21</div><div class="ps2">FTP</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">22</div><div class="ps2">SSH</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">23</div><div class="ps2">TELNET</div></div>
+        <div class="pb s"><div class="pn" style="color:#00E5FF">53</div><div class="ps2">DNS</div></div>
+        <div class="pb s"><div class="pn" style="color:#00E5FF">80</div><div class="ps2">HTTP</div></div>
+        <div class="pb s"><div class="pn" style="color:#00E5FF">443</div><div class="ps2">HTTPS</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">445</div><div class="ps2">SMB</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">554</div><div class="ps2">RTSP</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">3389</div><div class="ps2">RDP</div></div>
+      </div>
+      <div style="background:var(--bg);border-radius:4px;padding:8px;margin-top:8px;font-size:9px;color:var(--t2)">30 ports scanned - 9 open - 21 closed - 1.2s</div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">P</div><div><div class="dtitle">30+ PORTS</div><div class="ddesc">FTP 21, SSH 22, Telnet 23, HTTP 80, HTTPS 443, SMB 445, RDP 3389, RTSP 554, MQTT 1883 and more.</div><div class="tags"><span class="tag tr">TELNET</span><span class="tag tr">SMB</span><span class="tag tc">HTTP</span></div></div></div>
+    <div class="ditem"><div class="dicon">S</div><div><div class="dtitle">SERVICE LABELS</div><div class="ddesc">Every open port labelled with its service name. Understand what is exposed without looking anything up.</div><div class="tags"><span class="tag tg">HUMAN READABLE</span></div></div></div>
+    <div class="ditem"><div class="dicon">C</div><div><div class="dtitle">CCTV PORTS</div><div class="ddesc">RTSP 554, ISAPI 8443, Hikvision SDK 8000, Dahua 37777 and 34567 - critical ports for CCTV installers.</div><div class="tags"><span class="tag tr">RTSP 554</span><span class="tag tr">ISAPI 8443</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec alt" id="risk">
+  <div class="fs-head">
+    <div class="fs-icon-box">04</div>
+    <div>
+      <div class="fs-lbl">// 04 SECURITY ANALYSIS</div>
+      <h2 class="fs-title">RISK <span>ASSESSMENT</span></h2>
+      <p class="fs-desc">Risk score 0 to 100 per device based on dangerous ports, CVE vulnerabilities and default credential warnings. Four levels: Critical, High, Medium, Low.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">RISK REPORT</span></div>
+    <div class="mock-body">
+      <div class="alert"><div class="atitle">Telnet Exposed - 192.168.1.1</div><div class="asub">Port 23 open. Unencrypted remote access. CVE-2020-14882</div><div style="margin-top:4px"><span class="tag tr">CRITICAL</span></div></div>
+      <div class="alert"><div class="atitle">SMB Open - 192.168.1.30</div><div class="asub">Port 445 - EternalBlue risk. CVE-2017-0144</div><div style="margin-top:4px"><span class="tag tr">CRITICAL</span></div></div>
+      <div class="alert med"><div class="atitle">Default Credentials - Camera</div><div class="asub">Hikvision admin/12345 may still be active</div><div style="margin-top:4px"><span class="tag tw">HIGH</span></div></div>
+      <div style="display:flex;gap:8px;margin-top:10px;text-align:center">
+        <div style="flex:1;background:var(--bg3);padding:8px;border-radius:4px"><div style="color:#FF3B5C;font-size:15px;font-weight:700">2</div><div style="color:var(--t3);font-size:7px">CRITICAL</div></div>
+        <div style="flex:1;background:var(--bg3);padding:8px;border-radius:4px"><div style="color:#FF6B35;font-size:15px;font-weight:700">3</div><div style="color:var(--t3);font-size:7px">HIGH</div></div>
+        <div style="flex:1;background:var(--bg3);padding:8px;border-radius:4px"><div style="color:#FFB700;font-size:15px;font-weight:700">2</div><div style="color:var(--t3);font-size:7px">MEDIUM</div></div>
+        <div style="flex:1;background:var(--bg3);padding:8px;border-radius:4px"><div style="color:#00FF9D;font-size:15px;font-weight:700">4</div><div style="color:var(--t3);font-size:7px">SAFE</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">S</div><div><div class="dtitle">RISK SCORE 0-100</div><div class="ddesc">Dangerous ports add 10 to 25 each. CVE matches and default credentials add 20. Sets Critical, High, Medium or Low label.</div><div class="tags"><span class="tag tr">CRITICAL 70+</span><span class="tag tw">HIGH 40+</span></div></div></div>
+    <div class="ditem"><div class="dicon">C</div><div><div class="dtitle">CVE DATABASE</div><div class="ddesc">Built-in CVE list. EternalBlue SMB, Telnet exposure, camera CVE-2021-36260 and more linked to open ports.</div><div class="tags"><span class="tag tr">CVE-2017-0144</span></div></div></div>
+    <div class="ditem"><div class="dicon">K</div><div><div class="dtitle">DEFAULT CRED ALERTS</div><div class="ddesc">Flags Hikvision, Dahua, TP-Link, ASUS and more with known factory default usernames and passwords.</div><div class="tags"><span class="tag tw">admin/admin</span><span class="tag tw">admin/12345</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec" id="map">
+  <div class="fs-head">
+    <div class="fs-icon-box">05</div>
+    <div>
+      <div class="fs-lbl">// 05 TOPOLOGY VIEW</div>
+      <h2 class="fs-title">NETWORK <span>MAP</span></h2>
+      <p class="fs-desc">Visual topology showing every device connected to your gateway. Colour-coded by risk level. Tap any node to inspect device details instantly.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">NETWORK MAP</span></div>
+    <div class="mock-body">
+      <div class="map-wrap">
+        <div class="map-grid"></div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+          <line x1="50%" y1="50%" x2="24%" y2="18%" stroke="rgba(0,229,255,0.2)" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="50%" y1="50%" x2="76%" y2="18%" stroke="rgba(0,229,255,0.2)" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="50%" y1="50%" x2="14%" y2="76%" stroke="rgba(0,229,255,0.2)" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="50%" y1="50%" x2="86%" y2="76%" stroke="rgba(0,229,255,0.2)" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="50%" y1="50%" x2="50%" y2="88%" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+        </svg>
+        <div class="node" style="top:50%;left:50%"><div class="nc" style="width:40px;height:40px;border-color:#00FF9D;font-size:15px">GW</div><div class="nlb" style="color:#00FF9D">Gateway</div></div>
+        <div class="node" style="top:16%;left:22%"><div class="nc" style="width:32px;height:32px;border-color:#FF3B5C;font-size:9px;color:#FF3B5C">CAM</div><div class="nlb" style="color:#FF3B5C">.136</div></div>
+        <div class="node" style="top:16%;left:76%"><div class="nc" style="width:32px;height:32px;border-color:#FF3B5C;font-size:9px;color:#FF3B5C">CAM</div><div class="nlb" style="color:#FF3B5C">.113</div></div>
+        <div class="node" style="top:74%;left:12%"><div class="nc" style="width:32px;height:32px;border-color:#FFB700;font-size:9px;color:#FFB700">WIN</div><div class="nlb" style="color:#FFB700">.30</div></div>
+        <div class="node" style="top:74%;left:86%"><div class="nc" style="width:32px;height:32px;border-color:#FFB700;font-size:9px;color:#FFB700">WIN</div><div class="nlb" style="color:#FFB700">.17</div></div>
+        <div class="node" style="top:87%;left:50%"><div class="nc" style="width:32px;height:32px;border-color:#00E5FF;font-size:9px;color:#00E5FF">YOU</div><div class="nlb" style="color:#00E5FF">.49</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tg">GATEWAY</span><span class="tag tr">CRITICAL</span><span class="tag tw">HIGH</span><span class="tag tc">SAFE</span>
+      </div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">T</div><div><div class="dtitle">TOPOLOGY VIEW</div><div class="ddesc">Every device as a node connected to the gateway. Icons distinguish cameras, PCs, phones and IoT by type.</div><div class="tags"><span class="tag tc">VISUAL</span><span class="tag tg">REAL-TIME</span></div></div></div>
+    <div class="ditem"><div class="dicon">C</div><div><div class="dtitle">COLOUR-CODED RISK</div><div class="ddesc">Red is Critical, Orange is High, Cyan is Safe. Spot vulnerable devices instantly without reading scores.</div><div class="tags"><span class="tag tr">CRITICAL</span><span class="tag tw">HIGH</span><span class="tag tc">SAFE</span></div></div></div>
+    <div class="ditem"><div class="dicon">I</div><div><div class="dtitle">TAP TO INSPECT</div><div class="ddesc">Tap any node to jump to that device's full detail card with ports, risk score and diagnostic tools.</div><div class="tags"><span class="tag tg">INTERACTIVE</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec alt" id="diag">
+  <div class="fs-head">
+    <div class="fs-icon-box">06</div>
+    <div>
+      <div class="fs-lbl">// 06 DIAGNOSTICS</div>
+      <h2 class="fs-title">BUILT-IN <span>DIAGNOSTICS</span></h2>
+      <p class="fs-desc">Ping, traceroute, DNS lookup and Web UI access - all in one tap from any device card. No separate apps needed.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">DIAGNOSTICS - 192.168.1.1</span></div>
+    <div class="mock-body">
+      <div class="diag-grid">
+        <div class="db"><div class="di">WEB</div><div class="dl2">WEB UI</div></div>
+        <div class="db"><div class="di">TR</div><div class="dl2">TRACEROUTE</div></div>
+        <div class="db"><div class="di">PG</div><div class="dl2">PING</div></div>
+        <div class="db"><div class="di">DNS</div><div class="dl2">DNS LOOKUP</div></div>
+      </div>
+      <div style="background:var(--bg3);border-radius:5px;padding:12px">
+        <div style="color:var(--t3);font-size:8px;letter-spacing:2px;margin-bottom:8px">PING RESULTS</div>
+        <div class="dr"><span class="dk">AVG LATENCY</span><span class="dv" style="color:#00FF9D">3.2ms</span></div>
+        <div class="dr"><span class="dk">JITTER</span><span class="dv" style="color:#00FF9D">0.4ms</span></div>
+        <div class="dr"><span class="dk">PACKET LOSS</span><span class="dv" style="color:#00FF9D">0%</span></div>
+        <div class="dr"><span class="dk">SIGNAL QUALITY</span><span class="dv" style="color:#00FF9D">Excellent</span></div>
+        <div class="dr"><span class="dk">HOSTNAME</span><span class="dv" style="color:#00E5FF;font-size:9px">router.local</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">P</div><div><div class="dtitle">PING AND LATENCY</div><div class="ddesc">Avg RTT, jitter, packet loss and signal quality per device. Excellent, Good, Fair or Poor rating.</div><div class="tags"><span class="tag tg">REAL-TIME</span></div></div></div>
+    <div class="ditem"><div class="dicon">T</div><div><div class="dtitle">TRACEROUTE</div><div class="ddesc">Traces the hop-by-hop path to any device. Shows each router with response times to diagnose routing issues.</div><div class="tags"><span class="tag tc">15 HOPS MAX</span></div></div></div>
+    <div class="ditem"><div class="dicon">W</div><div><div class="dtitle">WEB UI ACCESS</div><div class="ddesc">Opens the device admin panel in the built-in browser. Works for routers, cameras and NVRs.</div><div class="tags"><span class="tag tc">ONE TAP</span></div></div></div>
+    <div class="ditem"><div class="dicon">D</div><div><div class="dtitle">DNS LOOKUP</div><div class="ddesc">Reverse DNS on every device to resolve hostnames and detect rogue IP to hostname mismatches.</div><div class="tags"><span class="tag tc">REVERSE DNS</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec" id="alerts">
+  <div class="fs-head">
+    <div class="fs-icon-box">07</div>
+    <div>
+      <div class="fs-lbl">// 07 ALERTS</div>
+      <h2 class="fs-title">SECURITY <span>ALERTS</span></h2>
+      <p class="fs-desc">Tracks your network over time and alerts you to new devices, rogue connections and risk changes between scans. Never miss an unauthorised connection.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">SECURITY ALERTS</span></div>
+    <div class="mock-body">
+      <div class="alert"><div class="atitle">New Device Detected</div><div class="asub">192.168.1.200 appeared at 14:32. Unknown - not seen before.</div><div style="margin-top:4px"><span class="tag tr">ROGUE ALERT</span></div></div>
+      <div class="alert"><div class="atitle">Critical Risk - Camera</div><div class="asub">192.168.1.136 Telnet port 23 open. Default credentials risk.</div><div style="margin-top:4px"><span class="tag tr">CRITICAL</span></div></div>
+      <div class="alert med"><div class="atitle">Default Creds Warning</div><div class="asub">Hikvision at .136 - admin/12345 may still be active on port 80.</div><div style="margin-top:4px"><span class="tag tw">HIGH</span></div></div>
+      <div class="alert med"><div class="atitle">High-Risk Port Open</div><div class="asub">SMB port 445 on 192.168.1.30 - EternalBlue vulnerability.</div><div style="margin-top:4px"><span class="tag tw">HIGH</span></div></div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">N</div><div><div class="dtitle">NEW DEVICE ALERTS</div><div class="ddesc">Remembers all seen devices. Any new MAC address triggers a rogue device alert immediately.</div><div class="tags"><span class="tag tr">ROGUE DETECTION</span></div></div></div>
+    <div class="ditem"><div class="dicon">R</div><div><div class="dtitle">RISK CHANGE ALERTS</div><div class="ddesc">If a device score changes between scans - a new port opens - Specter highlights the change instantly.</div><div class="tags"><span class="tag tw">CHANGE DETECTION</span></div></div></div>
+    <div class="ditem"><div class="dicon">H</div><div><div class="dtitle">SCAN HISTORY</div><div class="ddesc">Full history per device. Track first appearance, port changes over time and any vendor or type changes.</div><div class="tags"><span class="tag tc">HISTORY LOG</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec alt" id="sites">
+  <div class="fs-head">
+    <div class="fs-icon-box">08</div>
+    <div>
+      <div class="fs-lbl">// 08 SITE MANAGEMENT</div>
+      <h2 class="fs-title">SAVED <span>SITES</span></h2>
+      <p class="fs-desc">Save and manage multiple client sites. Switch between networks instantly and keep scan history separate per site. Perfect for CCTV installers managing multiple locations.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">SAVED SITES</span></div>
+    <div class="mock-body">
+      <div class="site-card" style="border-left:3px solid var(--c2)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="color:#00FF9D;font-size:11px;font-weight:700">Client A - Head Office</div><div style="color:var(--t2);font-size:9px;margin-top:2px">192.168.1.0/24 - Last scan: today</div></div>
+          <span class="mbadge bc">7 RISKS</span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap"><span class="tag tc">10 DEVICES</span><span class="tag tr">2 CAMERAS</span></div>
+      </div>
+      <div class="site-card" style="border-left:3px solid var(--c1)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="color:var(--c1);font-size:11px;font-weight:700">Client B - Retail Store</div><div style="color:var(--t2);font-size:9px;margin-top:2px">10.0.0.0/24 - Last scan: yesterday</div></div>
+          <span class="mbadge bh">3 RISKS</span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap"><span class="tag tc">6 DEVICES</span><span class="tag tr">4 CAMERAS</span></div>
+      </div>
+      <div class="site-card" style="border-left:3px solid var(--warn)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="color:var(--warn);font-size:11px;font-weight:700">Client C - Warehouse</div><div style="color:var(--t2);font-size:9px;margin-top:2px">172.16.0.0/24 - Last scan: 3 days ago</div></div>
+          <span class="mbadge bh">5 RISKS</span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap"><span class="tag tc">14 DEVICES</span><span class="tag tr">8 CAMERAS</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">M</div><div><div class="dtitle">MULTIPLE SITES</div><div class="ddesc">Save unlimited client sites with custom names. Each site stores its own scan history, device list and risk profile separately.</div><div class="tags"><span class="tag tc">UNLIMITED</span><span class="tag tg">ORGANISED</span></div></div></div>
+    <div class="ditem"><div class="dicon">Q</div><div><div class="dtitle">QUICK SWITCH</div><div class="ddesc">Switch between client sites instantly from the main menu. No reconfiguration needed - Specter remembers each network.</div><div class="tags"><span class="tag tc">ONE TAP</span></div></div></div>
+    <div class="ditem"><div class="dicon">H</div><div><div class="dtitle">PER-SITE HISTORY</div><div class="ddesc">Each site maintains its own full scan history. Compare scans over time per client and track changes independently.</div><div class="tags"><span class="tag tg">HISTORY</span><span class="tag tc">PER CLIENT</span></div></div></div>
+    <div class="ditem"><div class="dicon">O</div><div><div class="dtitle">SITE OVERVIEW</div><div class="ddesc">Dashboard shows all saved sites with device count, last scan time and current risk summary at a glance.</div><div class="tags"><span class="tag tg">DASHBOARD</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec" id="reports">
+  <div class="fs-head">
+    <div class="fs-icon-box">09</div>
+    <div>
+      <div class="fs-lbl">// 09 REPORTING</div>
+      <h2 class="fs-title">PDF <span>REPORTS</span></h2>
+      <p class="fs-desc">Export professional scan reports as PDF directly from your phone. Full device list, port summary and risk breakdown. Share with clients via WhatsApp, email or any app.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">SCAN REPORT</span></div>
+    <div class="mock-body">
+      <div style="border:1px solid var(--bd);border-radius:6px;padding:12px;margin-bottom:10px">
+        <div style="color:var(--c1);font-size:10px;font-weight:700;letter-spacing:2px">SPECTER SCAN REPORT</div>
+        <div style="color:var(--t3);font-size:8px;margin-top:3px">192.168.1.0/24 - 10 devices - 3 Mar 2026</div>
+        <div style="display:flex;gap:8px;margin-top:10px;text-align:center">
+          <div style="flex:1"><div style="color:#00E5FF;font-size:15px;font-weight:700">10</div><div style="color:var(--t3);font-size:7px">DEVICES</div></div>
+          <div style="flex:1"><div style="color:#FFB700;font-size:15px;font-weight:700">27</div><div style="color:var(--t3);font-size:7px">PORTS</div></div>
+          <div style="flex:1"><div style="color:#FF3B5C;font-size:15px;font-weight:700">7</div><div style="color:var(--t3);font-size:7px">RISKS</div></div>
+        </div>
+      </div>
+      <div class="rrow"><div><div class="rt">192.168.1.1 - Gateway</div><div class="rs">Ports: 21,22,23,80,443</div></div><span class="mbadge bc">CRITICAL</span></div>
+      <div class="rrow"><div><div class="rt">192.168.1.136 - Hikvision</div><div class="rs">Ports: 80,443,554,8443</div></div><span class="mbadge bc">CRITICAL</span></div>
+      <div class="rrow"><div><div class="rt">192.168.1.30 - Windows PC</div><div class="rs">Ports: 135,139,445</div></div><span class="mbadge bh">HIGH</span></div>
+      <div class="rrow"><div><div class="rt">192.168.1.49 - Android</div><div class="rs">Ports: 8080</div></div><span class="mbadge bs2">SAFE</span></div>
+      <div style="background:linear-gradient(135deg,#00E5FF,#00FF9D);color:#04080C;font-size:9px;font-weight:700;padding:10px;text-align:center;border-radius:4px;margin-top:10px">EXPORT PDF REPORT</div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">P</div><div><div class="dtitle">PDF EXPORT</div><div class="ddesc">Complete PDF generated on your phone. Executive summary, device list with IPs, ports, vendors and risk ratings.</div><div class="tags"><span class="tag tc">PDF FORMAT</span><span class="tag tg">SHAREABLE</span></div></div></div>
+    <div class="ditem"><div class="dicon">S</div><div><div class="dtitle">SHARE INSTANTLY</div><div class="ddesc">Share via WhatsApp, email, Google Drive or any app directly from Specter. No PC needed.</div><div class="tags"><span class="tag tg">WHATSAPP</span><span class="tag tc">EMAIL</span></div></div></div>
+    <div class="ditem"><div class="dicon">L</div><div><div class="dtitle">FULL DEVICE LIST</div><div class="ddesc">Every device with IP, MAC address, vendor, device type, open ports, services and individual risk score.</div><div class="tags"><span class="tag tc">DETAILED</span></div></div></div>
+    <div class="ditem"><div class="dicon">R</div><div><div class="dtitle">RISK SUMMARY</div><div class="ddesc">Report header shows Critical, High, Medium and Low counts for a quick executive overview before the full breakdown.</div><div class="tags"><span class="tag tg">CLIENT READY</span></div></div></div>
+  </div>
+</div>
+
+<div class="cta-bar">
+  <div style="font-size:clamp(18px,5vw,30px);font-weight:700;letter-spacing:3px;margin-bottom:10px">READY TO SCAN YOUR <span style="color:#00E5FF">NETWORK?</span></div>
+  <p style="color:#7A9AB0;font-size:13px;margin-bottom:24px;font-family:sans-serif">Free standalone APK. No root. No account. No Termux.</p>
+  <button class="bp" onclick="document.getElementById('pricing-overlay').style.display='block'">DOWNLOAD SPECTER APK</button>
+  <button class="bsec" onclick="showPage('home')" style="cursor:pointer">BACK TO HOME</button>
+</div>
+
+<footer>
+  <div class="flo">SPECTER</div>
+  <div class="fsu">NETWORK DIAGNOSTICS</div>
+  <div class="fli">
+    <button type="button" onclick="showPage('home')" style="cursor:pointer">HOME</button>
+    <button type="button" onclick="showPage('features')" style="cursor:pointer">FEATURES</button>
+    <a href="https://github.com/HawksureSecurityAnalytics/Specter-APK" target="_blank">GITHUB</a>
+    <button type="button" onclick="scrollToId('download-section')" style="cursor:pointer">DOWNLOAD</button>
+  </div>
+  <div class="fco">2026 SPECTER - HAWKSURE SECURITY ANALYTICS</div>
+</footer>
+
+
+
+
+
+
+<div style="border-top:1px solid rgba(0,229,255,0.12);padding:28px 24px;background:#0A0E1A;text-align:center">
+  <div style="color:#00E5FF;font-size:13px;font-weight:700;letter-spacing:4px">◈ SPECTER</div>
+  <div style="color:#3A5060;font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:14px">NETWORK DIAGNOSTICS</div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:14px">
+    <button type="button" onclick="showPage('home')"     style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">HOME</button>
+    <button type="button" onclick="showPage('features')" style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">FEATURES</button>
+    <button type="button" onclick="showPage('demo')"     style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">DEMO</button>
+    <button type="button" onclick="showPage('pricing')"  style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">PRICING</button>
+    <a href="https://github.com/HawksureSecurityAnalytics/Specter-APK" target="_blank" style="color:#3A5060;font-size:10px;font-family:'Courier New',monospace">GITHUB</a>
+  </div>
+  <div style="color:#3A5060;font-size:9px">© 2026 SPECTER — HAWKSURE SECURITY ANALYTICS</div>
+</div>
+
+</div>
+
+<!-- DEMO -->
+<div id="page-demo" style="display:none">
+
+
+<div class="hero">
+  <div class="hero-badge">&#9672; LIVE DEMO</div>
+  <h1 class="hero-title">SEE IT IN <span style="color:var(--c1)">ACTION</span></h1>
+  <p class="hero-sub">Watch Specter scan a real network, generate a report and save a client site</p>
+</div>
+
+<!-- ═══ DEMO 1: NETWORK SCAN ═══ -->
+<div class="demo-section" id="demo-scan">
+  <div class="demo-label">// 01 NETWORK SCANNING</div>
+  <h2 class="demo-title">WATCH A <span>LIVE SCAN</span></h2>
+  <p class="demo-desc">Tap QUICK and Specter sweeps your entire subnet instantly — every camera, PC, router and phone discovered and risk-rated in seconds.</p>
+
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"><div class="notch-pill"></div></div>
+      <div class="phone-screen" id="scan-phone">
+
+        <!-- scanning progress bar at top -->
+        <div class="scan-progress-bar" id="scan-prog-bar"></div>
+
+        <!-- APP HEADER -->
+        <div class="app-header">
+          <div class="app-header-row">
+            <div class="app-logo-icon"></div>
+            <div>
+              <div class="app-name">SPECTER</div>
+              <div class="app-sub">Network Diagnostics</div>
+            </div>
+          </div>
+          <div class="app-stats">
+            <div class="stat-item"><div class="stat-num" style="color:var(--c1)" id="s-devices">0</div><div class="stat-lbl">DEVICES</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--c2)" id="s-online">0</div><div class="stat-lbl">ONLINE</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--warn)" id="s-ports">0</div><div class="stat-lbl">PORTS</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--danger)" id="s-risks">0</div><div class="stat-lbl">RISKS</div></div>
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="app-tabs">
+          <div class="app-tab active">&#128203; DEVICES</div>
+          <div class="app-tab">&#128506; MAP</div>
+          <div class="app-tab">&#128274; DIAG</div>
+          <div class="app-tab">&#128680; ALERTS</div>
+        </div>
+
+        <!-- SCAN BUTTONS -->
+        <div class="scan-bar-row">
+          <div class="net-box"><div class="net-label">NET</div>192.168.1.0/24</div>
+          <button class="btn-quick">&#9889; QUICK</button>
+          <button class="btn-deep">&#128269; DEEP</button>
+        </div>
+
+        <!-- STATUS -->
+        <div class="status-line">
+          <span><span class="status-dot scanning" id="scan-dot"></span><span id="scan-status-txt">Scanning...</span></span>
+          <span id="scan-count-txt">0/11 • 0 found</span>
+        </div>
+
+        <!-- DEVICE LIST -->
+        <div class="dev-scroll" id="scan-dev-list"></div>
+
+      </div>
+      <div class="phone-home"><div class="home-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="feat-bullets">
+    <div class="fbullet"><div class="fbullet-icon">Q</div><div><div class="fbullet-title">QUICK SCAN — 30 TO 60 SECONDS</div><div class="fbullet-desc">Pings all 254 IPs simultaneously using 100 threads. Full subnet discovered in under a minute.</div></div></div>
+    <div class="fbullet"><div class="fbullet-icon">ID</div><div><div class="fbullet-title">DEVICE TYPE DETECTION</div><div class="fbullet-desc">Hikvision cameras, Windows PCs, TP-Link routers, iPhones and Android devices identified by port fingerprinting and HTTP banners.</div></div></div>
+    <div class="fbullet"><div class="fbullet-icon">!</div><div><div class="fbullet-title">INSTANT RISK BADGES + PORTS</div><div class="fbullet-desc">Critical, High and Safe labels assigned live. Open ports shown immediately with Web UI, Trace, Ping and DNS tools ready.</div></div></div>
+  </div>
+  <button class="replay-btn" onclick="replayScan()">&#8635; REPLAY SCAN DEMO</button>
+</div>
+
+<!-- ═══ DEMO 2: PDF REPORT ═══ -->
+<div class="demo-section alt" id="demo-pdf">
+  <div class="demo-label">// 02 PDF REPORTS</div>
+  <h2 class="demo-title">GENERATE A <span>PDF REPORT</span></h2>
+  <p class="demo-desc">One tap generates a full professional report with every device, port, risk score and CVE finding. Share directly to your client via WhatsApp or email.</p>
+
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"><div class="notch-pill"></div></div>
+      <div class="phone-screen">
+        <div class="screen active" id="pdf-screen">
+
+          <div class="app-header">
+            <div class="app-header-row">
+              <div class="app-logo-icon"></div>
+              <div><div class="app-name">SPECTER</div><div class="app-sub">Network Diagnostics</div></div>
+            </div>
+            <div class="app-stats">
+              <div class="stat-item"><div class="stat-num" style="color:var(--c1)">10</div><div class="stat-lbl">DEVICES</div></div>
+              <div class="stat-item"><div class="stat-num" style="color:var(--c2)">10</div><div class="stat-lbl">ONLINE</div></div>
+              <div class="stat-item"><div class="stat-num" style="color:var(--warn)">27</div><div class="stat-lbl">PORTS</div></div>
+              <div class="stat-item"><div class="stat-num" style="color:var(--danger)">7</div><div class="stat-lbl">RISKS</div></div>
+            </div>
+          </div>
+
+          <div style="padding:10px 10px 0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="font-size:18px">&#128196;</span>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:var(--c1)" id="pdf-status">GENERATING REPORT...</div>
+                <div style="font-size:7px;color:var(--t2);font-family:sans-serif;margin-top:2px" id="pdf-sub">Compiling scan data...</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:10px">
+              <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--t2);font-family:'Courier New',monospace;margin-bottom:3px">
+                <span id="pdf-prog-lbl">Building report...</span>
+                <span id="pdf-prog-pct">0%</span>
+              </div>
+              <div style="height:3px;background:#0D1520;border-radius:2px"><div id="pdf-bar" style="height:100%;border-radius:2px;background:linear-gradient(90deg,#00E5FF,#00FF9D);width:0%;transition:width 0.08s linear"></div></div>
+            </div>
+
+            <div id="pdf-preview" style="background:#0A0F16;border:1px solid rgba(0,229,255,0.15);border-radius:6px;padding:10px;margin-bottom:8px;opacity:0;transform:translateY(12px);transition:opacity 0.5s,transform 0.5s">
+              <div style="color:var(--c1);font-size:8px;font-weight:700;letter-spacing:1px;padding-bottom:6px;border-bottom:1px solid rgba(0,229,255,0.1);margin-bottom:7px">&#9672; SPECTER SCAN REPORT — 192.168.1.0/24</div>
+              <div style="display:flex;gap:5px;margin-bottom:8px;text-align:center">
+                <div style="flex:1;background:#050A0F;padding:5px 2px;border-radius:3px"><div style="font-size:13px;font-weight:700;color:var(--c1)">10</div><div style="font-size:6px;color:var(--t3)">DEVICES</div></div>
+                <div style="flex:1;background:#050A0F;padding:5px 2px;border-radius:3px"><div style="font-size:13px;font-weight:700;color:var(--warn)">27</div><div style="font-size:6px;color:var(--t3)">PORTS</div></div>
+                <div style="flex:1;background:#050A0F;padding:5px 2px;border-radius:3px"><div style="font-size:13px;font-weight:700;color:var(--danger)">7</div><div style="font-size:6px;color:var(--t3)">RISKS</div></div>
+                <div style="flex:1;background:#050A0F;padding:5px 2px;border-radius:3px"><div style="font-size:13px;font-weight:700;color:var(--c2)">135s</div><div style="font-size:6px;color:var(--t3)">TIME</div></div>
+              </div>
+              <div style="font-size:7px;font-family:'Courier New',monospace">
+                <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,229,255,0.05)"><span style="color:var(--t2)">192.168.1.1 — Network Gateway</span><span style="color:var(--danger);font-weight:700">CRITICAL</span></div>
+                <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,229,255,0.05)"><span style="color:var(--t2)">192.168.1.136 — Hikvision Camera</span><span style="color:var(--danger);font-weight:700">CRITICAL</span></div>
+                <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,229,255,0.05)"><span style="color:var(--t2)">192.168.1.113 — Hikvision Camera</span><span style="color:var(--danger);font-weight:700">CRITICAL</span></div>
+                <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,229,255,0.05)"><span style="color:var(--t2)">192.168.1.30 — Windows PC</span><span style="color:var(--danger);font-weight:700">CRITICAL</span></div>
+                <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,229,255,0.05)"><span style="color:var(--t2)">192.168.1.17 — Windows PC</span><span style="color:var(--warn);font-weight:700">HIGH</span></div>
+                <div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--t2)">192.168.1.155 — TP-Link Extender</span><span style="color:var(--warn);font-weight:700">HIGH</span></div>
+              </div>
+            </div>
+
+            <div id="share-btns" style="display:flex;gap:5px;opacity:0;transition:opacity 0.5s">
+              <button style="flex:1;padding:8px 2px;border-radius:4px;font-size:7px;font-weight:700;letter-spacing:1px;font-family:'Courier New',monospace;background:rgba(0,255,157,.12);color:var(--c2);border:1px solid rgba(0,255,157,.3)">&#9993; WHATSAPP</button>
+              <button style="flex:1;padding:8px 2px;border-radius:4px;font-size:7px;font-weight:700;letter-spacing:1px;font-family:'Courier New',monospace;background:rgba(0,229,255,.08);color:var(--c1);border:1px solid rgba(0,229,255,.2)">EMAIL</button>
+              <button style="flex:1;padding:8px 2px;border-radius:4px;font-size:7px;font-weight:700;letter-spacing:1px;font-family:'Courier New',monospace;background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;border:none">&#11015; SAVE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-home"><div class="home-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="feat-bullets">
+    <div class="fbullet"><div class="fbullet-icon">PDF</div><div><div class="fbullet-title">ONE TAP PDF EXPORT</div><div class="fbullet-desc">Complete professional report generated on your phone. Full device list, ports, vendor, risk score and CVE findings.</div></div></div>
+    <div class="fbullet"><div class="fbullet-icon">WA</div><div><div class="fbullet-title">SHARE VIA WHATSAPP OR EMAIL</div><div class="fbullet-desc">Send directly to your client from inside Specter. No PC, no cables, no extra apps needed.</div></div></div>
+  </div>
+  <button class="replay-btn" onclick="replayPDF()">&#8635; REPLAY REPORT DEMO</button>
+</div>
+
+<!-- ═══ DEMO 3: SITES ═══ -->
+<div class="demo-section" id="demo-sites">
+  <div class="demo-label">// 03 SITE MANAGEMENT</div>
+  <h2 class="demo-title">SAVE CLIENT <span>SITES</span></h2>
+  <p class="demo-desc">Save every client location as a named site. Switch between them instantly and keep each site's full scan history, devices and risk profile completely separate.</p>
+
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"><div class="notch-pill"></div></div>
+      <div class="phone-screen" style="position:relative">
+
+        <div class="app-header">
+          <div class="app-header-row">
+            <div class="app-logo-icon"></div>
+            <div><div class="app-name">SPECTER</div><div class="app-sub">Network Diagnostics</div></div>
+          </div>
+          <div class="app-stats">
+            <div class="stat-item"><div class="stat-num" style="color:var(--c1)" id="st-devices">0</div><div class="stat-lbl">DEVICES</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--c2)" id="st-online">0</div><div class="stat-lbl">ONLINE</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--warn)" id="st-ports">0</div><div class="stat-lbl">PORTS</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--danger)" id="st-risks">0</div><div class="stat-lbl">RISKS</div></div>
+          </div>
+        </div>
+
+        <div style="padding:8px 8px 4px;border-bottom:1px solid rgba(0,229,255,0.08)">
+          <div style="font-size:9px;color:var(--c1);letter-spacing:2px;font-family:'Courier New',monospace;margin-bottom:6px">&#127970; SAVED SITES</div>
+          <div style="font-size:7px;color:var(--t2);font-family:sans-serif">Tap a site to load its network</div>
+        </div>
+
+        <div class="sites-list" id="sites-list"></div>
+
+        <!-- add site button -->
+        <div id="add-site-btn" style="margin:0 8px;border:1px dashed rgba(0,229,255,0.2);border-radius:6px;padding:10px;text-align:center;opacity:0;transition:opacity 0.5s">
+          <div style="color:var(--c1);font-size:16px;margin-bottom:3px">+</div>
+          <div style="color:var(--t3);font-size:7px;letter-spacing:2px;font-family:'Courier New',monospace">ADD NEW SITE</div>
+        </div>
+
+        <!-- save toast -->
+        <div class="save-toast" id="save-toast">
+          <span style="color:var(--c2);font-size:14px">&#10003;</span>
+          <span class="save-toast-text" id="save-toast-txt">Site saved successfully</span>
+        </div>
+
+      </div>
+      <div class="phone-home"><div class="home-bar"></div></div>
+    </div>
+  </div>
+
+  <div class="feat-bullets">
+    <div class="fbullet"><div class="fbullet-icon">&#127970;</div><div><div class="fbullet-title">UNLIMITED CLIENT SITES</div><div class="fbullet-desc">Name and save every client location. Each site keeps its own full scan history and device list completely separate.</div></div></div>
+    <div class="fbullet"><div class="fbullet-icon">&#8644;</div><div><div class="fbullet-title">ONE TAP TO SWITCH</div><div class="fbullet-desc">Jump between client sites instantly. Specter loads that network's last scan, devices and risk profile automatically.</div></div></div>
+    <div class="fbullet"><div class="fbullet-icon">H</div><div><div class="fbullet-title">PER-SITE HISTORY</div><div class="fbullet-desc">Track every scan per client over time. Spot new devices, changed ports or worsening risk scores between visits.</div></div></div>
+  </div>
+  <button class="replay-btn" onclick="replaySites()">&#8635; REPLAY SITES DEMO</button>
+</div>
+
+<!-- CTA -->
+<div class="cta-bar">
+  <div style="font-size:clamp(18px,5vw,28px);font-weight:700;letter-spacing:3px;margin-bottom:10px">READY TO TRY <span style="color:var(--c1)">SPECTER?</span></div>
+  <p style="color:var(--t2);font-size:12px;font-family:sans-serif;margin-bottom:24px">Free download. No root. No Termux. Works on any Android.</p>
+  <button class="cta-btn" onclick="document.getElementById('pricing-overlay').style.display='block'">&#11015; GET SPECTER</button>
+  <button class="cta-btn2" onclick="showPage('features')" style="cursor:pointer">VIEW ALL FEATURES</button>
+</div>
+
+<footer>
+  <div class="flo">&#9672; SPECTER</div>
+  <div class="fsu">NETWORK DIAGNOSTICS</div>
+  <div class="fli">
+    <button type="button" onclick="showPage('home')" style="cursor:pointer">HOME</button>
+    <button type="button" onclick="showPage('features')" style="cursor:pointer">FEATURES</button>
+    <button type="button" onclick="showPage('demo')" style="cursor:pointer">DEMO</button>
+  </div>
+  <div class="fco">2026 SPECTER — HAWKSURE SECURITY ANALYTICS</div>
+</footer>
+
+
+
+<div style="border-top:1px solid rgba(0,229,255,0.12);padding:28px 24px;background:#0A0E1A;text-align:center">
+  <div style="color:#00E5FF;font-size:13px;font-weight:700;letter-spacing:4px">◈ SPECTER</div>
+  <div style="color:#3A5060;font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:14px">NETWORK DIAGNOSTICS</div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:14px">
+    <button type="button" onclick="showPage('home')"     style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">HOME</button>
+    <button type="button" onclick="showPage('features')" style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">FEATURES</button>
+    <button type="button" onclick="showPage('demo')"     style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">DEMO</button>
+    <button type="button" onclick="showPage('pricing')"  style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">PRICING</button>
+    <a href="https://github.com/HawksureSecurityAnalytics/Specter-APK" target="_blank" style="color:#3A5060;font-size:10px;font-family:'Courier New',monospace">GITHUB</a>
+  </div>
+  <div style="color:#3A5060;font-size:9px">© 2026 SPECTER — HAWKSURE SECURITY ANALYTICS</div>
+</div>
+
+</div>
+
+<!-- PRICING -->
+<div id="page-pricing" style="display:none">
+
+
+<div class="hero">
+  <div class="hero-badge">&#9672; CHOOSE YOUR PLAN</div>
+  <h1 class="hero-title">PRICING</h1>
+  <p class="hero-sub">One-off payment. No subscriptions. No renewals.<br>Buy once, own it forever.</p>
+</div>
+
+<div class="plans">
+
+  <!-- FREE -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-badge cb-free">FREE</div>
+      <div class="card-name" style="color:var(--c1)">FREE</div>
+      <div class="card-desc">Get started with basic network scanning. Perfect for trying out Specter before upgrading.</div>
+      <div class="price-row">
+        <span class="price-cur">R</span>
+        <span class="price-amt price-free">0</span>
+      </div>
+      <div class="price-note">ALWAYS FREE</div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-features">
+      <div class="feat-label">WHAT YOU GET</div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Quick scan — find devices on your network</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Basic device list with IP addresses</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Device type detection (camera, PC, router)</span></div>
+      <div class="frow"><span class="fcheck warn">~</span><span class="ftext">Limited to 10 devices per scan</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">Port scanning</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">Risk assessment &amp; CVE alerts</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">PDF reports</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">Multi-site management</span></div>
+    </div>
+    <div class="card-cta">
+      <a class="btn-free" href="https://github.com/HawksureSecurityAnalytics/Specter-APK/releases/latest/download/app-debug.apk" download>&#11015; DOWNLOAD FREE APK</a>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="card featured">
+    <div class="card-head">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+        <div class="card-badge cb-home" style="margin-bottom:0">HOME</div>
+        <span class="popular-tag">MOST POPULAR</span>
+      </div>
+      <div class="card-name" style="color:var(--c2)">HOME</div>
+      <div class="card-desc">Full scanning power for homeowners and small offices. Know exactly what is on your network.</div>
+      <div class="price-row">
+        <span class="price-cur">R</span>
+        <span class="price-amt price-home">99</span>
+      </div>
+      <div class="price-note">ONE-OFF PAYMENT</div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-features">
+      <div class="feat-label">EVERYTHING IN FREE PLUS</div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Quick + Deep scan — full port analysis</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Unlimited devices per scan</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">30+ ports scanned with service labels</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Risk scoring — Critical, High, Medium, Low</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Scan history — last 5 scans</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Network map topology view</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Ping, traceroute &amp; DNS diagnostics</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">PDF report export</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">Multi-site management</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">CVE database &amp; default cred alerts</span></div>
+    </div>
+    <div class="card-cta">
+      <a class="btn-home" href="mailto:info@hawksure.co.za?subject=Specter HOME Purchase&body=Hi, I would like to purchase Specter HOME (R99). Please send payment details.">&#9993; PURCHASE HOME — R99</a>
+    </div>
+  </div>
+
+  <!-- PRO -->
+  <div class="card pro-card">
+    <div class="card-head">
+      <div class="card-badge cb-pro">PRO</div>
+      <div class="card-name" style="color:var(--warn)">PRO</div>
+      <div class="card-desc">The full toolkit for CCTV installers and IT professionals. Every feature unlocked. Built for daily use on client sites.</div>
+      <div class="price-row">
+        <span class="price-cur">R</span>
+        <span class="price-amt price-pro">499</span>
+      </div>
+      <div class="price-note">ONE-OFF PAYMENT — LIFETIME ACCESS</div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-features">
+      <div class="feat-label">EVERYTHING IN HOME PLUS</div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">PDF report export &amp; share via WhatsApp</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">CVE vulnerability database</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Default credential alerts (Hikvision, Dahua, TP-Link)</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Multi-site management — unlimited client sites</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Unlimited scan history per site</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">New device &amp; rogue connection alerts</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Web UI access — open camera or router admin</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Priority support from Hawksure</span></div>
+    </div>
+    <div class="card-cta">
+      <a class="btn-pro" href="mailto:info@hawksure.co.za?subject=Specter PRO Purchase&body=Hi, I would like to purchase Specter PRO (R499). Please send payment details.">&#9889; PURCHASE PRO — R499</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPARE TABLE -->
+<div class="compare">
+  <div class="compare-title">FULL FEATURE COMPARISON</div>
+  <table class="ctable">
+    <thead>
+      <tr>
+        <th>FEATURE</th>
+        <th style="color:var(--c1)">FREE</th>
+        <th style="color:var(--c2)">HOME</th>
+        <th style="color:var(--warn)">PRO</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Quick Scan</td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Deep Scan</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Device limit</td><td><span class="partial">10 max</span></td><td><span class="tick">Unlimited</span></td><td><span class="tick">Unlimited</span></td></tr>
+      <tr><td>Port Scanning</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Risk Scoring</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Network Map</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Diagnostics</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Scan History</td><td><span class="cross">&#10007;</span></td><td><span class="partial">5 scans</span></td><td><span class="tick">Unlimited</span></td></tr>
+      <tr><td>CVE Alerts</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Default Cred Alerts</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>PDF Reports</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Multi-Site</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Priority Support</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td style="font-weight:700;color:var(--t1)">PRICE</td><td style="color:var(--c1);font-weight:700">R0</td><td style="color:var(--c2);font-weight:700">R99</td><td style="color:var(--warn);font-weight:700">R499</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FAQ -->
+<div class="faq">
+  <div class="faq-title">COMMON QUESTIONS</div>
+  <div class="faq-item">
+    <div class="faq-q">Is this a one-off payment or subscription?</div>
+    <div class="faq-a">100% one-off. Pay once and own Specter forever. No monthly fees, no renewals, no surprises.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">How do I receive my APK after payment?</div>
+    <div class="faq-a">After payment confirmation we will send your licensed APK directly to your email within 24 hours.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Can I upgrade from Home to Pro later?</div>
+    <div class="faq-a">Yes. Contact us and we will charge you the difference — R400 — to upgrade from Home to Pro at any time.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Does Specter work without internet?</div>
+    <div class="faq-a">Yes. Specter runs fully offline on your local network. No internet connection required to scan.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">What Android version is required?</div>
+    <div class="faq-a">Specter requires Android 8.0 or higher. No root required. Works on any Android phone or tablet.</div>
+  </div>
+</div>
+
+<div class="cta-bottom">
+  <div style="color:var(--t2);font-size:11px;font-family:sans-serif;margin-bottom:16px">Questions? Contact Hawksure directly</div>
+  <a href="mailto:info@hawksure.co.za" style="border:1px solid var(--bd);color:var(--c1);font-size:11px;font-weight:700;letter-spacing:2px;padding:13px 24px;display:inline-block;margin:4px;font-family:'Courier New',monospace">&#9993; EMAIL US</a>
+  <button type="button" onclick="showPage('home')" style="background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:13px 24px;display:inline-block;margin:4px;font-family:'Courier New',monospace" style="cursor:pointer">&#8592; BACK TO HOME</button>
+</div>
+
+<footer>
+  <div class="flo">SPECTER</div>
+  <div class="fsu">NETWORK DIAGNOSTICS</div>
+  <div class="fli">
+    <button type="button" onclick="showPage('home')" style="cursor:pointer">HOME</button>
+    <button type="button" onclick="showPage('features')" style="cursor:pointer">FEATURES</button>
+    <button type="button" onclick="showPage('pricing')" style="cursor:pointer">PRICING</button>
+    <a href="https://github.com/HawksureSecurityAnalytics/Specter-APK" target="_blank">GITHUB</a>
+  </div>
+  <div class="fco">2026 SPECTER - HAWKSURE SECURITY ANALYTICS</div>
+</footer>
+
+<div style="border-top:1px solid rgba(0,229,255,0.12);padding:28px 24px;background:#0A0E1A;text-align:center">
+  <div style="color:#00E5FF;font-size:13px;font-weight:700;letter-spacing:4px">◈ SPECTER</div>
+  <div style="color:#3A5060;font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:14px">NETWORK DIAGNOSTICS</div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:14px">
+    <button type="button" onclick="showPage('home')"     style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">HOME</button>
+    <button type="button" onclick="showPage('features')" style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">FEATURES</button>
+    <button type="button" onclick="showPage('demo')"     style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">DEMO</button>
+    <button type="button" onclick="showPage('pricing')"  style="background:none;border:none;color:#3A5060;font-size:10px;font-family:'Courier New',monospace;cursor:pointer">PRICING</button>
+    <a href="https://github.com/HawksureSecurityAnalytics/Specter-APK" target="_blank" style="color:#3A5060;font-size:10px;font-family:'Courier New',monospace">GITHUB</a>
+  </div>
+  <div style="color:#3A5060;font-size:9px">© 2026 SPECTER — HAWKSURE SECURITY ANALYTICS</div>
+</div>
+
+</div>
+
+<script>
+
+// ══════════════════════════════════════
+// PAGE ROUTER
+// ══════════════════════════════════════
+var PAGES = ['home','features','demo','pricing'];
+
+function showPage(id) {
+  PAGES.forEach(function(p) {
+    var el = document.getElementById('page-' + p);
+    if (el) el.style.display = 'none';
+  });
+  var target = document.getElementById('page-' + id);
+  if (target) target.style.display = 'block';
+  window.scrollTo(0, 0);
+  if (id === 'demo') {
+    setTimeout(replayScan, 400);
+    setTimeout(replayPDF, 600);
+    setTimeout(replaySites, 800);
+  }
+}
+
+function goFeat(id) {
+  showPage('features');
+  setTimeout(function() {
+    var el = document.getElementById('feat-' + id);
+    if (!el) el = document.getElementById(id);
+    if (el) {
+      var y = el.getBoundingClientRect().top + window.pageYOffset - 110;
+      window.scrollTo(0, y);
+    }
+  }, 60);
+}
+
+function scrollToId(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    var y = el.getBoundingClientRect().top + window.pageYOffset - 60;
+    window.scrollTo(0, y);
+  }
+}
+
+// Home is shown by default via inline style
+
+</script>
+
+<script>
+
+// ══════════════════════════════════════════
+// DEMO 1 — NETWORK SCAN
+// ══════════════════════════════════════════
+var scanDevices = [
+  {ip:'192.168.1.1',   name:'Network Gateway',        icon:'🌐', risk:'Critical', riskCls:'rb-critical', type:'Router / Gateway', typeCls:'tt-router',  signal:5, sigLabel:'Excellent', sigCls:'sig-excellent', ports:['21/','22/','23/','53/','80/','139/','+3'], portCls:['pt-red','pt-red','pt-red','pt-cyan','pt-cyan','pt-cyan','pt-more'], tools:['webui','trace','ping','name','dns'], isGW:true},
+  {ip:'192.168.1.17',  name:'Windows PC',             icon:'🖥️', risk:'High',     riskCls:'rb-high',     type:'Windows PC',       typeCls:'tt-windows', signal:3, sigLabel:'Good',      sigCls:'sig-good',      ports:['135/','139/','445/'],                       portCls:['pt-cyan','pt-cyan','pt-red'],           tools:['trace','ping','name','dns']},
+  {ip:'192.168.1.30',  name:'Windows PC',             icon:'🖥️', risk:'Critical', riskCls:'rb-critical', type:'Windows PC',       typeCls:'tt-windows', signal:3, sigLabel:'Good',      sigCls:'sig-good',      ports:['135/','139/','445/','8080/'],               portCls:['pt-cyan','pt-cyan','pt-red','pt-cyan'], tools:['webui','trace','ping','name','dns']},
+  {ip:'192.168.1.49',  name:'Android or Linux',       icon:'📱', risk:null,       riskCls:'',            type:'Android / Linux',  typeCls:'tt-android', signal:4, sigLabel:'Good (-65dBm)', sigCls:'sig-good',   ports:[],                                          portCls:[],                                      tools:['trace','ping','name','dns'], isYou:true},
+  {ip:'192.168.1.76',  name:'Android or Linux',       icon:'📱', risk:null,       riskCls:'',            type:'Android / Linux',  typeCls:'tt-android', signal:5, sigLabel:'Excellent',  sigCls:'sig-excellent', ports:[],                                         portCls:[],                                      tools:['trace','ping','name','dns']},
+  {ip:'192.168.1.113', name:'Hikvision/HiLook IP Camera', icon:'📷', risk:'Critical', riskCls:'rb-critical', type:'IP Camera',    typeCls:'tt-camera',  signal:3, sigLabel:'Good',      sigCls:'sig-good',      ports:['80/','443/','554/','8443/'],               portCls:['pt-cyan','pt-cyan','pt-red','pt-red'],  tools:['webui','trace','ping','name','dns']},
+  {ip:'192.168.1.136', name:'Hikvision/HiLook IP Camera', icon:'📷', risk:'Critical', riskCls:'rb-critical', type:'IP Camera',    typeCls:'tt-camera',  signal:5, sigLabel:'Very Good',  sigCls:'sig-excellent', ports:['80/','443/','554/','8443/'],              portCls:['pt-cyan','pt-cyan','pt-red','pt-red'],  tools:['webui','trace','ping','name','dns']},
+  {ip:'192.168.1.147', name:'Apple iPhone/iPad',      icon:'📱', risk:null,       riskCls:'',            type:'iPhone / iPad',    typeCls:'tt-iphone',  signal:3, sigLabel:'Fair',      sigCls:'sig-fair',      ports:['62078/'],                                  portCls:['pt-cyan'],                             tools:['trace','ping','name','dns']},
+  {ip:'192.168.1.155', name:'TP-Link Extender',       icon:'🌐', risk:'High',     riskCls:'rb-high',     type:'Router / AP',      typeCls:'tt-router',  signal:5, sigLabel:'Excellent',  sigCls:'sig-excellent', ports:['22/','80/'],                              portCls:['pt-red','pt-cyan'],                    tools:['webui','trace','ping','name','dns']},
+  {ip:'192.168.1.175', name:'TP-Link Router',         icon:'🌐', risk:'High',     riskCls:'rb-high',     type:'Router / AP',      typeCls:'tt-router',  signal:5, sigLabel:'Excellent',  sigCls:'sig-excellent', ports:['22/','80/','443/'],                       portCls:['pt-red','pt-cyan','pt-cyan'],           tools:['webui','trace','ping','name','dns']},
+];
+
+function makeSignal(bars, cls) {
+  var heights = [4,7,10,13,16];
+  var activeColor = cls==='sig-excellent'?'#00FF9D':cls==='sig-good'?'#FFB700':'#FF3B5C';
+  var html = '<div class="signal">';
+  for(var i=0;i<5;i++){
+    var active = i < bars;
+    html += '<div class="signal-bar" style="height:'+heights[i]+'px;background:'+(active?activeColor:'#1C2A3A')+'"></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function makeCard(d) {
+  var ipBadges = '';
+  if(d.isGW) ipBadges += '<span class="gw-badge">GW</span> ';
+  if(d.risk) ipBadges += '<span class="risk-badge '+d.riskCls+'">'+d.risk+'</span>';
+  if(d.isYou) ipBadges += '<span class="risk-badge rb-you">YOU</span>';
+
+  var toolBtns = '';
+  var toolMap = {webui:'🌐 Web UI',trace:'🐾 Trace',ping:'📊 Ping',name:'✏️ Name',dns:'🔍 DNS'};
+  var toolCls = {webui:'tb-webui',trace:'tb-trace',ping:'tb-ping',name:'tb-name',dns:'tb-dns'};
+  d.tools.forEach(function(t){ toolBtns += '<span class="tool-btn '+toolCls[t]+'">'+toolMap[t]+'</span>'; });
+
+  var portTags = '';
+  d.ports.forEach(function(p,i){ portTags += '<span class="port-tag '+(d.portCls[i]||'pt-cyan')+'">'+p+'</span>'; });
+
+  var highlight = d.isYou ? ' highlight' : '';
+  var ipColor = d.risk==='Critical'?'#00BFFF': d.risk==='High'?'#00BFFF':'#00BFFF';
+
+  return '<div class="dev-card'+highlight+'">'
+    +'<div class="dev-card-top">'
+    +'<div class="dev-icon">'+d.icon+'</div>'
+    +'<div class="dev-info">'
+    +'<div class="dev-ip-row"><span class="dev-ip" style="color:#00BFFF">'+d.ip+'</span>'+ipBadges+'</div>'
+    +'<div class="dev-name">'+d.name+'</div>'
+    +'</div></div>'
+    +'<div class="dev-mid"><span class="type-tag '+d.typeCls+'">'+d.type+'</span>'+makeSignal(d.signal,d.sigCls)+'<span class="sig-label '+d.sigCls+'">'+d.sigLabel+'</span></div>'
+    +'<div class="tool-btns">'+toolBtns+'</div>'
+    +(portTags?'<div class="port-tags">'+portTags+'</div>':'')
+    +'</div>';
+}
+
+var scanTimers=[];
+function clearT(a){a.forEach(function(t){clearTimeout(t);clearInterval(t);});a.length=0;}
+
+function replayScan(){
+  clearT(scanTimers);
+  document.getElementById('scan-dev-list').innerHTML='';
+  document.getElementById('scan-prog-bar').style.width='0%';
+  document.getElementById('s-devices').textContent='0';
+  document.getElementById('s-online').textContent='0';
+  document.getElementById('s-ports').textContent='0';
+  document.getElementById('s-risks').textContent='0';
+  document.getElementById('scan-status-txt').textContent='Scanning...';
+  document.getElementById('scan-count-txt').textContent='0/11 • 0 found';
+  document.getElementById('scan-dot').style.animation='blink 1s infinite';
+  startScan();
+}
+
+function startScan(){
+  var pct=0; var found=0; var totalPorts=0; var totalRisks=0;
+  var totalDevs=scanDevices.length;
+  var interval=setInterval(function(){
+    pct++;
+    document.getElementById('scan-prog-bar').style.width=pct+'%';
+    if(pct>=100){clearInterval(interval);}
+  },50);
+  scanTimers.push(interval);
+
+  var delay=600;
+  scanDevices.forEach(function(d,i){
+    var t=setTimeout(function(){
+      found++;
+      totalPorts+=d.ports.length;
+      if(d.risk==='Critical'||d.risk==='High') totalRisks++;
+      document.getElementById('s-devices').textContent=found;
+      document.getElementById('s-online').textContent=found;
+      document.getElementById('s-ports').textContent=totalPorts;
+      document.getElementById('s-risks').textContent=totalRisks;
+      document.getElementById('scan-count-txt').textContent=(i+1)+'/11 • '+found+' found';
+
+      var el=document.createElement('div');
+      el.innerHTML=makeCard(d);
+      var card=el.firstChild;
+      document.getElementById('scan-dev-list').appendChild(card);
+      setTimeout(function(){card.classList.add('show');},30);
+
+      if(i===totalDevs-1){
+        document.getElementById('scan-status-txt').textContent='Done — '+found+' devices in 135.3s';
+        document.getElementById('scan-dot').style.animation='none';
+        document.getElementById('scan-dot').style.background='#00FF9D';
+      }
+    },delay);
+    scanTimers.push(t);
+    delay+=700;
+  });
+}
+
+// ══════════════════════════════════════════
+// DEMO 2 — PDF REPORT
+// ══════════════════════════════════════════
+var pdfTimers=[];
+function replayPDF(){
+  clearT(pdfTimers);
+  document.getElementById('pdf-bar').style.width='0%';
+  document.getElementById('pdf-prog-pct').textContent='0%';
+  document.getElementById('pdf-prog-lbl').textContent='Building report...';
+  document.getElementById('pdf-status').textContent='GENERATING REPORT...';
+  document.getElementById('pdf-sub').textContent='Compiling scan data...';
+  document.getElementById('pdf-preview').style.opacity='0';
+  document.getElementById('pdf-preview').style.transform='translateY(12px)';
+  document.getElementById('share-btns').style.opacity='0';
+  startPDF();
+}
+
+function startPDF(){
+  var pct=0;
+  var steps=[
+    {at:25,lbl:'Compiling device list...',status:'GENERATING REPORT...',sub:'Processing 10 devices'},
+    {at:50,lbl:'Adding port data...',status:'GENERATING REPORT...',sub:'Mapping 27 open ports'},
+    {at:75,lbl:'Running CVE analysis...',status:'GENERATING REPORT...',sub:'Checking vulnerability database'},
+    {at:90,lbl:'Formatting PDF...',status:'ALMOST READY...',sub:'Final layout and branding'},
+    {at:100,lbl:'Complete!',status:'REPORT READY ✓',sub:'Tap to share with client'},
+  ];
+  var iv=setInterval(function(){
+    pct++;
+    document.getElementById('pdf-bar').style.width=pct+'%';
+    document.getElementById('pdf-prog-pct').textContent=pct+'%';
+    steps.forEach(function(s){
+      if(pct===s.at){
+        document.getElementById('pdf-prog-lbl').textContent=s.lbl;
+        document.getElementById('pdf-status').textContent=s.status;
+        document.getElementById('pdf-sub').textContent=s.sub;
+        if(pct===75){
+          document.getElementById('pdf-preview').style.opacity='1';
+          document.getElementById('pdf-preview').style.transform='translateY(0)';
+        }
+        if(pct===100){
+          clearInterval(iv);
+          setTimeout(function(){document.getElementById('share-btns').style.opacity='1';},400);
+        }
+      }
+    });
+  },40);
+  pdfTimers.push(iv);
+}
+
+// ══════════════════════════════════════════
+// DEMO 3 — SITES
+// ══════════════════════════════════════════
+var sitesData=[
+  {name:'Client A — Head Office',    net:'192.168.1.0/24', last:'Today, 11:34',     devs:10, risks:7,  riskLvl:'Critical', riskCls:'rb-critical', tags:['10 DEVICES','2 CAMERAS','7 RISKS'],  tagCls:['tt-android','tt-camera','tt-camera'], active:true},
+  {name:'Client B — Retail Store',   net:'10.0.0.0/24',    last:'Yesterday, 09:12', devs:6,  risks:3,  riskLvl:'High',     riskCls:'rb-high',     tags:['6 DEVICES','4 CAMERAS'],             tagCls:['tt-android','tt-camera'], active:false},
+  {name:'Client C — Warehouse',      net:'172.16.0.0/24',  last:'3 days ago',       devs:14, risks:5,  riskLvl:'High',     riskCls:'rb-high',     tags:['14 DEVICES','8 CAMERAS'],            tagCls:['tt-android','tt-camera'], active:false},
+];
+
+var siteTimers=[];
+function replaySites(){
+  clearT(siteTimers);
+  document.getElementById('sites-list').innerHTML='';
+  document.getElementById('add-site-btn').style.opacity='0';
+  document.getElementById('save-toast').classList.remove('show');
+  document.getElementById('st-devices').textContent='0';
+  document.getElementById('st-online').textContent='0';
+  document.getElementById('st-ports').textContent='0';
+  document.getElementById('st-risks').textContent='0';
+  startSites();
+}
+
+function startSites(){
+  // Animate stats counting up for active site
+  var t0=setTimeout(function(){
+    animCount('st-devices',10,800);
+    animCount('st-online',10,800);
+    animCount('st-ports',27,800);
+    animCount('st-risks',7,800);
+  },300);
+  siteTimers.push(t0);
+
+  sitesData.forEach(function(s,i){
+    var t=setTimeout(function(){
+      var el=document.createElement('div');
+      el.className='site-card-app'+(s.active?' active-site':'');
+      var nameColor=s.active?'#00FF9D':s.riskLvl==='Critical'?'#00BFFF':'#00BFFF';
+      var tagHtml=s.tags.map(function(tg,ti){
+        return '<span class="sc-tag '+s.tagCls[ti]+'" style="font-size:6px;padding:1px 5px;border-radius:2px;border:1px solid;font-family:Courier New,monospace">'+tg+'</span>';
+      }).join('');
+      el.innerHTML='<div class="sc-top">'
+        +'<div class="sc-name" style="color:'+nameColor+'">'+s.name+'</div>'
+        +'<span class="risk-badge '+s.riskCls+'">'+s.riskLvl+'</span>'
+        +'</div>'
+        +'<div class="sc-meta">'+s.net+' &nbsp;·&nbsp; Last scan: '+s.last+'</div>'
+        +'<div class="sc-tags">'+tagHtml+'</div>';
+      document.getElementById('sites-list').appendChild(el);
+      setTimeout(function(){el.classList.add('show');},30);
+
+      if(i===sitesData.length-1){
+        // Show add button
+        var ta=setTimeout(function(){
+          document.getElementById('add-site-btn').style.opacity='1';
+        },400);
+        siteTimers.push(ta);
+        // Show save toast
+        var tb=setTimeout(function(){
+          document.getElementById('save-toast-txt').textContent='✓ Client A site saved';
+          document.getElementById('save-toast').classList.add('show');
+          var tc=setTimeout(function(){
+            document.getElementById('save-toast').classList.remove('show');
+          },2500);
+          siteTimers.push(tc);
+        },1200);
+        siteTimers.push(tb);
+      }
+    },i*500+400);
+    siteTimers.push(t);
+  });
+}
+
+function animCount(id, target, duration){
+  var el=document.getElementById(id);
+  var start=0; var step=Math.ceil(target/(duration/50));
+  var iv=setInterval(function(){
+    start+=step;
+    if(start>=target){start=target;clearInterval(iv);}
+    el.textContent=start;
+  },50);
+  siteTimers.push(iv);
+}
+
+// ══════════════════════════════════════════
+// AUTO START + INTERSECTION OBSERVER
+// ══════════════════════════════════════════
+function onVisible(el,cb){
+  if(!el) return;
+  var fired=false;
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting&&!fired){fired=true;cb();}
+    });
+  },{threshold:0.25});
+  obs.observe(el);
+}
+
+window.addEventListener('load',function(){
+  onVisible(document.getElementById('demo-scan'), replayScan);
+  onVisible(document.getElementById('demo-pdf'),  replayPDF);
+  onVisible(document.getElementById('demo-sites'),replaySites);
+});
+
+</script>
+
+<script>
+
+function goTo(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    var y = el.getBoundingClientRect().top + window.pageYOffset - 110;
+    window.scrollTo(0, y);
+  }
+}
+
+</script>
+
+</body>
+</html>
