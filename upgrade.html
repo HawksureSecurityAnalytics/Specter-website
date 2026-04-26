@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upgrade — Specter Network Diagnostics</title>
+<style>
+  :root{--bg:#050a14;--bg2:#0a1628;--c1:#00e5ff;--c2:#00ff9d;--warn:#ffb700;--t1:#fff;--t2:rgba(255,255,255,.7);--t3:rgba(255,255,255,.35);--border:rgba(0,229,255,.15)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t1);font-family:'IBM Plex Mono',monospace,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 20px}
+  .logo{text-align:center;margin-bottom:32px}
+  .logo-icon{font-size:40px;margin-bottom:8px}
+  .logo-title{font-size:24px;font-weight:700;color:var(--c1);letter-spacing:4px}
+  .logo-sub{font-size:10px;color:var(--t3);letter-spacing:3px;margin-top:4px}
+  h1{font-size:18px;color:var(--t1);text-align:center;margin-bottom:8px;letter-spacing:1px}
+  .sub{font-size:11px;color:var(--t3);text-align:center;margin-bottom:32px;line-height:1.8}
+  .cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:100%;max-width:700px;margin-bottom:32px}
+  .card{background:var(--bg2);border:2px solid var(--border);border-radius:14px;padding:24px;flex:1;min-width:280px;max-width:320px;cursor:pointer;transition:all .2s;position:relative}
+  .card:hover{transform:translateY(-2px)}
+  .card.selected{border-color:var(--c1);box-shadow:0 0 20px rgba(0,229,255,.2)}
+  .card.pro-card{border-color:rgba(123,47,247,.4)}
+  .card.pro-card.selected{border-color:#a855f7;box-shadow:0 0 20px rgba(168,85,247,.2)}
+  .best-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7b2ff7,#00e5ff);border-radius:20px;padding:4px 14px;font-size:9px;font-weight:700;letter-spacing:1px;white-space:nowrap}
+  .card-tier{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:2px;margin-bottom:8px}
+  .card-price{font-size:32px;font-weight:700;color:var(--c1);margin-bottom:4px}
+  .card-price span{font-size:12px;color:var(--t3)}
+  .pro-card .card-price{color:#a855f7}
+  .card-features{margin:16px 0;display:flex;flex-direction:column;gap:6px}
+  .card-features div{font-size:10px;color:var(--t2);display:flex;gap:8px;align-items:center}
+  .card-features div::before{content:"✓";color:var(--c2);font-weight:700;flex-shrink:0}
+  .card-btn{width:100%;padding:12px;border:none;border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;margin-top:16px;transition:all .2s}
+  .home-btn{background:var(--c1);color:#000}
+  .home-btn:hover{background:#00ccee}
+  .pro-btn{background:linear-gradient(135deg,#7b2ff7,#a855f7);color:#fff}
+  .pro-btn:hover{opacity:.9}
+  .cancel-note{font-size:10px;color:var(--t3);text-align:center;margin-bottom:24px}
+  .cancel-note a{color:var(--c1);text-decoration:none}
+  .device-note{font-size:9px;color:var(--t3);text-align:center;margin-top:8px}
+  .faq{width:100%;max-width:700px}
+  .faq h3{font-size:11px;color:var(--t3);letter-spacing:2px;margin-bottom:12px}
+  .faq-item{border-bottom:1px solid var(--border);padding:12px 0}
+  .faq-q{font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:700}
+  .faq-a{font-size:10px;color:var(--t3);line-height:1.7}
+  nav{width:100%;max-width:700px;display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+  nav a{color:var(--t3);font-size:10px;text-decoration:none;letter-spacing:1px}
+  nav a:hover{color:var(--c1)}
+</style>
+</head>
+<body>
+
+<div class="logo">
+  <div class="logo-icon">🛡️</div>
+  <div class="logo-title">SPECTER</div>
+  <div class="logo-sub">NETWORK DIAGNOSTICS</div>
+</div>
+
+<nav>
+  <a href="index.html">← BACK TO HOME</a>
+  <a href="pricing.html">COMPARE PLANS</a>
+</nav>
+
+<h1>CHOOSE YOUR PLAN</h1>
+<p class="sub">Start with a 14-day free trial — no credit card required.<br>Subscribe monthly and cancel anytime.</p>
+
+<div class="cards">
+  <!-- HOME -->
+  <div class="card" id="card-home">
+    <div class="card-tier">🏠 HOME</div>
+    <div class="card-price">R99<span>/month</span></div>
+    <div class="card-features">
+      <div>Unlimited devices</div>
+      <div>Deep scan + port detection</div>
+      <div>Export PDF reports</div>
+      <div>Device history tracking</div>
+      <div>Network map</div>
+    </div>
+    <button class="card-btn home-btn" onclick="subscribe('home')">⚡ SUBSCRIBE — R99/mo</button>
+  </div>
+
+  <!-- PRO -->
+  <div class="card pro-card" id="card-pro">
+    <div class="best-badge">✦ BEST VALUE</div>
+    <div class="card-tier">⚡ PRO</div>
+    <div class="card-price">R499<span>/month</span></div>
+    <div class="card-features">
+      <div>Everything in Home</div>
+      <div>ARP conflict detection</div>
+      <div>CVE vulnerability lookup</div>
+      <div>Multi-site management</div>
+      <div>Network topology mapping</div>
+      <div>Priority support</div>
+    </div>
+    <button class="card-btn pro-btn" onclick="subscribe('pro')">⚡ SUBSCRIBE — R499/mo</button>
+  </div>
+</div>
+
+<p class="cancel-note">🔒 Secured by PayFast · Cancel anytime · No contracts · <a href="mailto:info@hawksure.co.za">Need help?</a></p>
+
+<div class="faq">
+  <h3>FREQUENTLY ASKED QUESTIONS</h3>
+  <div class="faq-item">
+    <div class="faq-q">How does billing work?</div>
+    <div class="faq-a">You are billed automatically every 30 days via PayFast. Your first charge is today and subsequent charges are on the same date each month.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">How do I cancel?</div>
+    <div class="faq-a">Email us at info@hawksure.co.za and we will cancel your subscription immediately. Your access continues until the end of the current billing period. No penalties.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">How does my app know I paid?</div>
+    <div class="faq-a">PayFast notifies our server automatically when your payment is confirmed. Your app checks in with our server each time it launches and your tier upgrades within minutes of payment.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">What payment methods are accepted?</div>
+    <div class="faq-a">All major South African payment methods via PayFast — Visa, Mastercard, Instant EFT, Capitec Pay, SnapScan and more.</div>
+  </div>
+</div>
+
+<script>
+// Get device_id from URL params if coming from app
+const params = new URLSearchParams(window.location.search);
+const deviceId = params.get('device_id') || '';
+const tierParam = params.get('tier') || '';
+
+// Auto-highlight tier from app
+if(tierParam === 'pro') document.getElementById('card-pro').classList.add('selected');
+else document.getElementById('card-home').classList.add('selected');
+
+function subscribe(tier){
+  const prices = {home: 99, pro: 499};
+  const names  = {home: 'Specter Home', pro: 'Specter Pro'};
+
+  // Build PayFast payment URL
+  const merchantId  = '34689245';
+  const merchantKey = '4a1f29jp3gvzw';
+  const amount      = prices[tier].toFixed(2);
+  const itemName    = encodeURIComponent(names[tier] + ' Monthly Subscription');
+  const returnUrl   = encodeURIComponent('https://specter.co.za/thank-you.html');
+  const cancelUrl   = encodeURIComponent('https://specter.co.za/upgrade');
+  const notifyUrl   = encodeURIComponent('https://web-production-2f81e.up.railway.app/api/payfast/webhook');
+  const customStr1  = encodeURIComponent(deviceId);
+  const customStr2  = encodeURIComponent(tier);
+
+  // Recurring billing params
+  const subType     = '1';       // 1 = recurring
+  const billingDate = new Date().toISOString().split('T')[0];
+  const recurFreq   = '3';       // 3 = monthly
+  const recurCycles = '0';       // 0 = indefinite
+
+  const url = `https://www.payfast.co.za/eng/process?` +
+    `merchant_id=${merchantId}&merchant_key=${merchantKey}` +
+    `&return_url=${returnUrl}&cancel_url=${cancelUrl}&notify_url=${notifyUrl}` +
+    `&amount=${amount}&item_name=${itemName}` +
+    `&custom_str1=${customStr1}&custom_str2=${customStr2}` +
+    `&subscription_type=${subType}&billing_date=${billingDate}` +
+    `&recurring_amount=${amount}&frequency=${recurFreq}&cycles=${recurCycles}`;
+
+  window.location.href = url;
+}
+</script>
+
+</body>
+</html>

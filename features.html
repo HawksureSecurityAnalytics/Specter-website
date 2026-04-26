@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specter Features</title>
+<style>
+:root{--bg:#04080C;--bg2:#0A0E1A;--bg3:#0D1520;--c1:#00E5FF;--c2:#00FF9D;--warn:#FFB700;--danger:#FF3B5C;--t1:#E0F0FF;--t2:#7A9AB0;--t3:#3A5060;--bd:rgba(0,229,255,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:'Courier New',monospace;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(4,8,12,.98);border-bottom:1px solid var(--bd)}
+.logo-text{color:var(--c1);font-size:15px;font-weight:700;letter-spacing:4px}
+.nav-cta{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:10px;font-weight:700;padding:9px 16px;text-decoration:none}
+.page-hero{padding:100px 24px 40px;text-align:center;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.ph-title{font-size:clamp(28px,8vw,56px);font-weight:700;letter-spacing:6px;background:linear-gradient(135deg,#fff,var(--c1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ph-sub{color:var(--t2);font-size:11px;letter-spacing:2px;margin-top:10px}
+.tab-strip{display:flex;overflow-x:auto;background:var(--bg2);border-bottom:1px solid var(--bd);position:sticky;top:52px;z-index:50;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-strip::-webkit-scrollbar{display:none}
+.tbt{padding:14px 16px;color:var(--t3);font-size:9px;letter-spacing:2px;white-space:nowrap;border:none;border-bottom:3px solid transparent;flex-shrink:0;background:none;font-family:'Courier New',monospace;cursor:pointer;-webkit-tap-highlight-color:rgba(0,229,255,0.2);touch-action:manipulation;min-width:44px;min-height:44px}
+.feat-sec{padding:48px 24px;border-bottom:4px solid rgba(0,229,255,0.06)}
+.feat-sec.alt{background:var(--bg2)}
+.fs-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:32px}
+.fs-icon-box{width:52px;height:52px;border:1px solid var(--bd);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.fs-lbl{color:var(--c1);font-size:9px;letter-spacing:3px;margin-bottom:5px}
+.fs-title{font-size:clamp(18px,5vw,32px);font-weight:700;letter-spacing:3px}
+.fs-title span{color:var(--c1)}
+.fs-desc{color:var(--t2);font-size:13px;line-height:1.8;font-family:sans-serif;margin-top:8px}
+.mock{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:28px}
+.mock-bar{background:var(--bg3);padding:9px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%}
+.mock-lbl{color:var(--t2);font-size:9px;letter-spacing:2px;margin-left:6px}
+.mock-body{padding:14px}
+.dlist{display:flex;flex-direction:column;gap:14px}
+.ditem{display:flex;gap:12px;align-items:flex-start;background:var(--bg3);padding:14px;border-radius:6px}
+.dicon{width:30px;height:30px;background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.12);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border-radius:3px}
+.dtitle{color:var(--t1);font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px}
+.ddesc{color:var(--t2);font-size:12px;line-height:1.6;font-family:sans-serif}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.tag{font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:2px}
+.tc{background:rgba(0,229,255,.1);color:var(--c1);border:1px solid rgba(0,229,255,.2)}
+.tg{background:rgba(0,255,157,.1);color:var(--c2);border:1px solid rgba(0,255,157,.2)}
+.tr{background:rgba(255,59,92,.1);color:var(--danger);border:1px solid rgba(255,59,92,.2)}
+.tw{background:rgba(255,183,0,.1);color:var(--warn);border:1px solid rgba(255,183,0,.2)}
+.mdev{background:var(--bg3);border-radius:5px;padding:8px 10px;margin-bottom:6px;border-left:3px solid var(--c1);display:flex;justify-content:space-between;align-items:center}
+.mdev.cam{border-left-color:var(--danger)}.mdev.win{border-left-color:var(--warn)}.mdev.gw{border-left-color:var(--c2)}
+.mip{font-size:10px;font-weight:700}.mtype{color:var(--t2);font-size:9px;margin-top:2px}
+.mbadge{font-size:8px;padding:2px 7px;border-radius:2px;font-weight:700}
+.bc{background:rgba(255,59,92,.15);color:var(--danger)}.bh{background:rgba(255,107,53,.15);color:#FF6B35}.bs2{background:rgba(0,255,157,.1);color:var(--c2)}
+.prog{height:3px;background:var(--bg);border-radius:2px;margin:6px 0}
+.pf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--c1),var(--c2))}
+.alert{background:var(--bg3);border-radius:5px;padding:9px 12px;margin-bottom:7px;border-left:3px solid var(--danger)}
+.alert.med{border-left-color:var(--warn)}
+.atitle{color:var(--t1);font-size:10px;font-weight:700}
+.asub{color:var(--t2);font-size:9px;margin-top:2px;font-family:sans-serif}
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.pb{padding:8px;border-radius:4px}
+.pb.d{background:rgba(255,59,92,.07);border:1px solid rgba(255,59,92,.2)}
+.pb.s{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.12)}
+.pn{font-size:12px;font-weight:700}.ps2{color:var(--t2);font-size:8px;margin-top:2px}
+.map-wrap{position:relative;height:200px;background:var(--bg3);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:20px 20px}
+.node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;transform:translate(-50%,-50%)}
+.nc{border-radius:50%;border:2px solid var(--c1);background:var(--bg3);display:flex;align-items:center;justify-content:center}
+.nlb{font-size:7px;color:var(--t2);text-align:center;line-height:1.2}
+.diag-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.db{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.15);padding:10px;border-radius:5px;text-align:center}
+.di{font-size:14px}.dl2{color:var(--c1);font-size:8px;margin-top:3px;letter-spacing:1px}
+.dr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,229,255,.05)}
+.dr:last-child{border-bottom:none}
+.dk{color:var(--t3);font-size:9px}.dv{font-size:10px;font-weight:700}
+.rrow{background:var(--bg3);border-radius:5px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.rt{color:var(--t1);font-size:10px;font-weight:700}.rs{color:var(--t2);font-size:9px;margin-top:2px;font-family:sans-serif}
+.site-card{background:var(--bg3);border-radius:5px;padding:12px;margin-bottom:8px}
+.cta-bar{background:var(--bg2);border-top:1px solid var(--bd);padding:52px 24px;text-align:center}
+.bp{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:13px 24px;display:inline-block;margin:4px;text-decoration:none}
+.bsec{border:1px solid var(--bd);color:var(--c1);font-size:11px;letter-spacing:2px;padding:13px 24px;display:inline-block;margin:4px;text-decoration:none}
+footer{border-top:1px solid var(--bd);padding:28px 24px;background:var(--bg2);text-align:center}
+.flo{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:4px}
+.fsu{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:16px}
+.fli{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.fli a{color:var(--t3);font-size:10px}
+.fco{color:var(--t3);font-size:9px;margin-top:16px}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" style="display:flex;align-items:center;gap:8px">
+    <span style="color:var(--c1);font-size:18px">&#9672;</span>
+    <span class="logo-text">SPECTER</span>
+  </a>
+  <button class="nav-cta" onclick="window.location='pricing.html'">GET APK</button>
+</nav>
+
+<div class="page-hero">
+  <div style="display:inline-block;border:1px solid rgba(0,229,255,.3);color:var(--c1);font-size:9px;letter-spacing:3px;padding:5px 14px;margin-bottom:16px">COMPLETE FEATURE GUIDE</div>
+  <h1 class="ph-title">SPECTER FEATURES</h1>
+  <p class="ph-sub">Tap a tab to jump to any section</p>
+</div>
+
+<div class="tab-strip">
+  <button class="tbt" onclick="goTo('scan')">SCANNING</button>
+  <button class="tbt" onclick="goTo('devices')">DEVICES</button>
+  <button class="tbt" onclick="goTo('ports')">PORTS</button>
+  <button class="tbt" onclick="goTo('risk')">RISK</button>
+  <button class="tbt" onclick="goTo('map')">MAP</button>
+  <button class="tbt" onclick="goTo('diag')">DIAGNOSTICS</button>
+  <button class="tbt" onclick="goTo('alerts')">ALERTS</button>
+  <button class="tbt" onclick="goTo('sites')">SITES</button>
+  <button class="tbt" onclick="goTo('reports')">REPORTS</button>
+</div>
+
+<div class="feat-sec" id="scan">
+  <div class="fs-head">
+    <div class="fs-icon-box">01</div>
+    <div>
+      <div class="fs-lbl">// 01 NETWORK SCANNING</div>
+      <h2 class="fs-title">QUICK &amp; <span>DEEP SCAN</span></h2>
+      <p class="fs-desc">Two scan modes for every scenario. Quick scan sweeps the subnet in seconds using ICMP ping. Deep scan performs full port analysis on every discovered host.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">QUICK SCAN IN PROGRESS</span></div>
+    <div class="mock-body">
+      <div style="color:var(--c1);font-size:10px;margin-bottom:4px">Quick scan: finding hosts...</div>
+      <div class="prog"><div class="pf" style="width:72%"></div></div>
+      <div style="color:var(--t2);font-size:9px;margin-bottom:10px;font-family:sans-serif">183/254 hosts checked - 8 found</div>
+      <div class="mdev gw"><div><div class="mip" style="color:#00FF9D">192.168.1.1</div><div class="mtype">Router / Gateway</div></div><span class="mbadge bs2">Safe</span></div>
+      <div class="mdev cam"><div><div class="mip" style="color:#FF3B5C">192.168.1.136</div><div class="mtype">Hikvision Camera</div></div><span class="mbadge bc">Critical</span></div>
+      <div class="mdev win"><div><div class="mip" style="color:#FFB700">192.168.1.30</div><div class="mtype">Windows PC</div></div><span class="mbadge bh">High</span></div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">Q</div><div><div class="dtitle">QUICK SCAN</div><div class="ddesc">ICMP ping sweep across 254 IPs using 100 simultaneous threads. Completes in 30 to 60 seconds.</div><div class="tags"><span class="tag tc">30-60s</span><span class="tag tg">100 THREADS</span></div></div></div>
+    <div class="ditem"><div class="dicon">D</div><div><div class="dtitle">DEEP SCAN</div><div class="ddesc">Full port analysis on every discovered host. 30+ ports per device with CVE enrichment and vendor lookup.</div><div class="tags"><span class="tag tc">THOROUGH</span><span class="tag tw">2-5 MINS</span></div></div></div>
+    <div class="ditem"><div class="dicon">R</div><div><div class="dtitle">REAL-TIME RESULTS</div><div class="ddesc">Devices appear as they are discovered. Live progress bar with host count and percentage complete.</div><div class="tags"><span class="tag tg">LIVE UPDATES</span></div></div></div>
+    <div class="ditem"><div class="dicon">A</div><div><div class="dtitle">AUTO NETWORK DETECT</div><div class="ddesc">Specter auto-detects your WiFi subnet and local IP. No manual configuration needed.</div><div class="tags"><span class="tag tc">AUTOMATIC</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec alt" id="devices">
+  <div class="fs-head">
+    <div class="fs-icon-box">02</div>
+    <div>
+      <div class="fs-lbl">// 02 DEVICE IDENTIFICATION</div>
+      <h2 class="fs-title">SMART <span>DEVICE DETECTION</span></h2>
+      <p class="fs-desc">Identifies 100+ device types using port fingerprinting, HTTP banners, mDNS and vendor OUI lookup. Hikvision, Dahua, Windows PCs, smart TVs and more.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">DETECTED DEVICES</span></div>
+    <div class="mock-body">
+      <div class="mdev gw"><div><div class="mip" style="color:#00FF9D">192.168.1.1</div><div class="mtype">Router / Gateway</div></div><span class="mbadge bs2">GW</span></div>
+      <div class="mdev cam"><div><div class="mip" style="color:#FF3B5C">192.168.1.136</div><div class="mtype">Hikvision Camera</div></div><span class="mbadge bc">Critical</span></div>
+      <div class="mdev cam"><div><div class="mip" style="color:#FF3B5C">192.168.1.113</div><div class="mtype">IP Camera</div></div><span class="mbadge bh">High</span></div>
+      <div class="mdev win"><div><div class="mip" style="color:#FFB700">192.168.1.30</div><div class="mtype">Windows PC</div></div><span class="mbadge bh">High</span></div>
+      <div class="mdev"><div><div class="mip" style="color:#00E5FF">192.168.1.49</div><div class="mtype">Android</div></div><span class="mbadge bs2">YOU</span></div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">C</div><div><div class="dtitle">CCTV AND NVR</div><div class="ddesc">Hikvision, HiLook, Dahua, Reolink, Axis via HTTP banners and port signatures including RTSP 554 and ISAPI 8443.</div><div class="tags"><span class="tag tr">HIKVISION</span><span class="tag tr">DAHUA</span></div></div></div>
+    <div class="ditem"><div class="dicon">W</div><div><div class="dtitle">WINDOWS AND LINUX</div><div class="ddesc">Windows via SMB 445, NetBIOS 139, RDP 3389. Linux and Android via SSH 22 and service banners.</div><div class="tags"><span class="tag tw">WINDOWS</span><span class="tag tc">LINUX</span></div></div></div>
+    <div class="ditem"><div class="dicon">T</div><div><div class="dtitle">SMART TVs AND IoT</div><div class="ddesc">Samsung, LG, Sony, Hisense, Roku via mDNS, UPnP and HTTP title analysis.</div><div class="tags"><span class="tag tc">SMART TV</span><span class="tag tg">IoT</span></div></div></div>
+    <div class="ditem"><div class="dicon">R</div><div><div class="dtitle">ROUTERS AND EXTENDERS</div><div class="ddesc">TP-Link, ASUS, Netgear, MikroTik, D-Link by HTTP title and management port signatures.</div><div class="tags"><span class="tag tc">TP-LINK</span><span class="tag tc">ASUS</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec" id="ports">
+  <div class="fs-head">
+    <div class="fs-icon-box">03</div>
+    <div>
+      <div class="fs-lbl">// 03 PORT ANALYSIS</div>
+      <h2 class="fs-title">DEEP <span>PORT SCANNING</span></h2>
+      <p class="fs-desc">30+ ports scanned per device, each labelled with its service name. Instantly see what protocols are exposed with no lookup needed.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">PORT SCAN - 192.168.1.1</span></div>
+    <div class="mock-body">
+      <div style="color:var(--t3);font-size:9px;letter-spacing:2px;margin-bottom:8px">OPEN PORTS</div>
+      <div class="pg">
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">21</div><div class="ps2">FTP</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">22</div><div class="ps2">SSH</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">23</div><div class="ps2">TELNET</div></div>
+        <div class="pb s"><div class="pn" style="color:#00E5FF">53</div><div class="ps2">DNS</div></div>
+        <div class="pb s"><div class="pn" style="color:#00E5FF">80</div><div class="ps2">HTTP</div></div>
+        <div class="pb s"><div class="pn" style="color:#00E5FF">443</div><div class="ps2">HTTPS</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">445</div><div class="ps2">SMB</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">554</div><div class="ps2">RTSP</div></div>
+        <div class="pb d"><div class="pn" style="color:#FF3B5C">3389</div><div class="ps2">RDP</div></div>
+      </div>
+      <div style="background:var(--bg);border-radius:4px;padding:8px;margin-top:8px;font-size:9px;color:var(--t2)">30 ports scanned - 9 open - 21 closed - 1.2s</div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">P</div><div><div class="dtitle">30+ PORTS</div><div class="ddesc">FTP 21, SSH 22, Telnet 23, HTTP 80, HTTPS 443, SMB 445, RDP 3389, RTSP 554, MQTT 1883 and more.</div><div class="tags"><span class="tag tr">TELNET</span><span class="tag tr">SMB</span><span class="tag tc">HTTP</span></div></div></div>
+    <div class="ditem"><div class="dicon">S</div><div><div class="dtitle">SERVICE LABELS</div><div class="ddesc">Every open port labelled with its service name. Understand what is exposed without looking anything up.</div><div class="tags"><span class="tag tg">HUMAN READABLE</span></div></div></div>
+    <div class="ditem"><div class="dicon">C</div><div><div class="dtitle">CCTV PORTS</div><div class="ddesc">RTSP 554, ISAPI 8443, Hikvision SDK 8000, Dahua 37777 and 34567 - critical ports for CCTV installers.</div><div class="tags"><span class="tag tr">RTSP 554</span><span class="tag tr">ISAPI 8443</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec alt" id="risk">
+  <div class="fs-head">
+    <div class="fs-icon-box">04</div>
+    <div>
+      <div class="fs-lbl">// 04 SECURITY ANALYSIS</div>
+      <h2 class="fs-title">RISK <span>ASSESSMENT</span></h2>
+      <p class="fs-desc">Risk score 0 to 100 per device based on dangerous ports, CVE vulnerabilities and default credential warnings. Four levels: Critical, High, Medium, Low.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">RISK REPORT</span></div>
+    <div class="mock-body">
+      <div class="alert"><div class="atitle">Telnet Exposed - 192.168.1.1</div><div class="asub">Port 23 open. Unencrypted remote access. CVE-2020-14882</div><div style="margin-top:4px"><span class="tag tr">CRITICAL</span></div></div>
+      <div class="alert"><div class="atitle">SMB Open - 192.168.1.30</div><div class="asub">Port 445 - EternalBlue risk. CVE-2017-0144</div><div style="margin-top:4px"><span class="tag tr">CRITICAL</span></div></div>
+      <div class="alert med"><div class="atitle">Default Credentials - Camera</div><div class="asub">Hikvision admin/12345 may still be active</div><div style="margin-top:4px"><span class="tag tw">HIGH</span></div></div>
+      <div style="display:flex;gap:8px;margin-top:10px;text-align:center">
+        <div style="flex:1;background:var(--bg3);padding:8px;border-radius:4px"><div style="color:#FF3B5C;font-size:15px;font-weight:700">2</div><div style="color:var(--t3);font-size:7px">CRITICAL</div></div>
+        <div style="flex:1;background:var(--bg3);padding:8px;border-radius:4px"><div style="color:#FF6B35;font-size:15px;font-weight:700">3</div><div style="color:var(--t3);font-size:7px">HIGH</div></div>
+        <div style="flex:1;background:var(--bg3);padding:8px;border-radius:4px"><div style="color:#FFB700;font-size:15px;font-weight:700">2</div><div style="color:var(--t3);font-size:7px">MEDIUM</div></div>
+        <div style="flex:1;background:var(--bg3);padding:8px;border-radius:4px"><div style="color:#00FF9D;font-size:15px;font-weight:700">4</div><div style="color:var(--t3);font-size:7px">SAFE</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">S</div><div><div class="dtitle">RISK SCORE 0-100</div><div class="ddesc">Dangerous ports add 10 to 25 each. CVE matches and default credentials add 20. Sets Critical, High, Medium or Low label.</div><div class="tags"><span class="tag tr">CRITICAL 70+</span><span class="tag tw">HIGH 40+</span></div></div></div>
+    <div class="ditem"><div class="dicon">C</div><div><div class="dtitle">CVE DATABASE</div><div class="ddesc">Built-in CVE list. EternalBlue SMB, Telnet exposure, camera CVE-2021-36260 and more linked to open ports.</div><div class="tags"><span class="tag tr">CVE-2017-0144</span></div></div></div>
+    <div class="ditem"><div class="dicon">K</div><div><div class="dtitle">DEFAULT CRED ALERTS</div><div class="ddesc">Flags Hikvision, Dahua, TP-Link, ASUS and more with known factory default usernames and passwords.</div><div class="tags"><span class="tag tw">admin/admin</span><span class="tag tw">admin/12345</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec" id="map">
+  <div class="fs-head">
+    <div class="fs-icon-box">05</div>
+    <div>
+      <div class="fs-lbl">// 05 TOPOLOGY VIEW</div>
+      <h2 class="fs-title">NETWORK <span>MAP</span></h2>
+      <p class="fs-desc">Visual topology showing every device connected to your gateway. Colour-coded by risk level. Tap any node to inspect device details instantly.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">NETWORK MAP</span></div>
+    <div class="mock-body">
+      <div class="map-wrap">
+        <div class="map-grid"></div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+          <line x1="50%" y1="50%" x2="24%" y2="18%" stroke="rgba(0,229,255,0.2)" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="50%" y1="50%" x2="76%" y2="18%" stroke="rgba(0,229,255,0.2)" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="50%" y1="50%" x2="14%" y2="76%" stroke="rgba(0,229,255,0.2)" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="50%" y1="50%" x2="86%" y2="76%" stroke="rgba(0,229,255,0.2)" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="50%" y1="50%" x2="50%" y2="88%" stroke="rgba(0,229,255,0.3)" stroke-width="1"/>
+        </svg>
+        <div class="node" style="top:50%;left:50%"><div class="nc" style="width:40px;height:40px;border-color:#00FF9D;font-size:15px">GW</div><div class="nlb" style="color:#00FF9D">Gateway</div></div>
+        <div class="node" style="top:16%;left:22%"><div class="nc" style="width:32px;height:32px;border-color:#FF3B5C;font-size:9px;color:#FF3B5C">CAM</div><div class="nlb" style="color:#FF3B5C">.136</div></div>
+        <div class="node" style="top:16%;left:76%"><div class="nc" style="width:32px;height:32px;border-color:#FF3B5C;font-size:9px;color:#FF3B5C">CAM</div><div class="nlb" style="color:#FF3B5C">.113</div></div>
+        <div class="node" style="top:74%;left:12%"><div class="nc" style="width:32px;height:32px;border-color:#FFB700;font-size:9px;color:#FFB700">WIN</div><div class="nlb" style="color:#FFB700">.30</div></div>
+        <div class="node" style="top:74%;left:86%"><div class="nc" style="width:32px;height:32px;border-color:#FFB700;font-size:9px;color:#FFB700">WIN</div><div class="nlb" style="color:#FFB700">.17</div></div>
+        <div class="node" style="top:87%;left:50%"><div class="nc" style="width:32px;height:32px;border-color:#00E5FF;font-size:9px;color:#00E5FF">YOU</div><div class="nlb" style="color:#00E5FF">.49</div></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tg">GATEWAY</span><span class="tag tr">CRITICAL</span><span class="tag tw">HIGH</span><span class="tag tc">SAFE</span>
+      </div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">T</div><div><div class="dtitle">TOPOLOGY VIEW</div><div class="ddesc">Every device as a node connected to the gateway. Icons distinguish cameras, PCs, phones and IoT by type.</div><div class="tags"><span class="tag tc">VISUAL</span><span class="tag tg">REAL-TIME</span></div></div></div>
+    <div class="ditem"><div class="dicon">C</div><div><div class="dtitle">COLOUR-CODED RISK</div><div class="ddesc">Red is Critical, Orange is High, Cyan is Safe. Spot vulnerable devices instantly without reading scores.</div><div class="tags"><span class="tag tr">CRITICAL</span><span class="tag tw">HIGH</span><span class="tag tc">SAFE</span></div></div></div>
+    <div class="ditem"><div class="dicon">I</div><div><div class="dtitle">TAP TO INSPECT</div><div class="ddesc">Tap any node to jump to that device's full detail card with ports, risk score and diagnostic tools.</div><div class="tags"><span class="tag tg">INTERACTIVE</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec alt" id="diag">
+  <div class="fs-head">
+    <div class="fs-icon-box">06</div>
+    <div>
+      <div class="fs-lbl">// 06 DIAGNOSTICS</div>
+      <h2 class="fs-title">BUILT-IN <span>DIAGNOSTICS</span></h2>
+      <p class="fs-desc">Ping, traceroute, DNS lookup and Web UI access - all in one tap from any device card. No separate apps needed.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">DIAGNOSTICS - 192.168.1.1</span></div>
+    <div class="mock-body">
+      <div class="diag-grid">
+        <div class="db"><div class="di">WEB</div><div class="dl2">WEB UI</div></div>
+        <div class="db"><div class="di">TR</div><div class="dl2">TRACEROUTE</div></div>
+        <div class="db"><div class="di">PG</div><div class="dl2">PING</div></div>
+        <div class="db"><div class="di">DNS</div><div class="dl2">DNS LOOKUP</div></div>
+      </div>
+      <div style="background:var(--bg3);border-radius:5px;padding:12px">
+        <div style="color:var(--t3);font-size:8px;letter-spacing:2px;margin-bottom:8px">PING RESULTS</div>
+        <div class="dr"><span class="dk">AVG LATENCY</span><span class="dv" style="color:#00FF9D">3.2ms</span></div>
+        <div class="dr"><span class="dk">JITTER</span><span class="dv" style="color:#00FF9D">0.4ms</span></div>
+        <div class="dr"><span class="dk">PACKET LOSS</span><span class="dv" style="color:#00FF9D">0%</span></div>
+        <div class="dr"><span class="dk">SIGNAL QUALITY</span><span class="dv" style="color:#00FF9D">Excellent</span></div>
+        <div class="dr"><span class="dk">HOSTNAME</span><span class="dv" style="color:#00E5FF;font-size:9px">router.local</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">P</div><div><div class="dtitle">PING AND LATENCY</div><div class="ddesc">Avg RTT, jitter, packet loss and signal quality per device. Excellent, Good, Fair or Poor rating.</div><div class="tags"><span class="tag tg">REAL-TIME</span></div></div></div>
+    <div class="ditem"><div class="dicon">T</div><div><div class="dtitle">TRACEROUTE</div><div class="ddesc">Traces the hop-by-hop path to any device. Shows each router with response times to diagnose routing issues.</div><div class="tags"><span class="tag tc">15 HOPS MAX</span></div></div></div>
+    <div class="ditem"><div class="dicon">W</div><div><div class="dtitle">WEB UI ACCESS</div><div class="ddesc">Opens the device admin panel in the built-in browser. Works for routers, cameras and NVRs.</div><div class="tags"><span class="tag tc">ONE TAP</span></div></div></div>
+    <div class="ditem"><div class="dicon">D</div><div><div class="dtitle">DNS LOOKUP</div><div class="ddesc">Reverse DNS on every device to resolve hostnames and detect rogue IP to hostname mismatches.</div><div class="tags"><span class="tag tc">REVERSE DNS</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec" id="alerts">
+  <div class="fs-head">
+    <div class="fs-icon-box">07</div>
+    <div>
+      <div class="fs-lbl">// 07 ALERTS</div>
+      <h2 class="fs-title">SECURITY <span>ALERTS</span></h2>
+      <p class="fs-desc">Tracks your network over time and alerts you to new devices, rogue connections and risk changes between scans. Never miss an unauthorised connection.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">SECURITY ALERTS</span></div>
+    <div class="mock-body">
+      <div class="alert"><div class="atitle">New Device Detected</div><div class="asub">192.168.1.200 appeared at 14:32. Unknown - not seen before.</div><div style="margin-top:4px"><span class="tag tr">ROGUE ALERT</span></div></div>
+      <div class="alert"><div class="atitle">Critical Risk - Camera</div><div class="asub">192.168.1.136 Telnet port 23 open. Default credentials risk.</div><div style="margin-top:4px"><span class="tag tr">CRITICAL</span></div></div>
+      <div class="alert med"><div class="atitle">Default Creds Warning</div><div class="asub">Hikvision at .136 - admin/12345 may still be active on port 80.</div><div style="margin-top:4px"><span class="tag tw">HIGH</span></div></div>
+      <div class="alert med"><div class="atitle">High-Risk Port Open</div><div class="asub">SMB port 445 on 192.168.1.30 - EternalBlue vulnerability.</div><div style="margin-top:4px"><span class="tag tw">HIGH</span></div></div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">N</div><div><div class="dtitle">NEW DEVICE ALERTS</div><div class="ddesc">Remembers all seen devices. Any new MAC address triggers a rogue device alert immediately.</div><div class="tags"><span class="tag tr">ROGUE DETECTION</span></div></div></div>
+    <div class="ditem"><div class="dicon">R</div><div><div class="dtitle">RISK CHANGE ALERTS</div><div class="ddesc">If a device score changes between scans - a new port opens - Specter highlights the change instantly.</div><div class="tags"><span class="tag tw">CHANGE DETECTION</span></div></div></div>
+    <div class="ditem"><div class="dicon">H</div><div><div class="dtitle">SCAN HISTORY</div><div class="ddesc">Full history per device. Track first appearance, port changes over time and any vendor or type changes.</div><div class="tags"><span class="tag tc">HISTORY LOG</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec alt" id="sites">
+  <div class="fs-head">
+    <div class="fs-icon-box">08</div>
+    <div>
+      <div class="fs-lbl">// 08 SITE MANAGEMENT</div>
+      <h2 class="fs-title">SAVED <span>SITES</span></h2>
+      <p class="fs-desc">Save and manage multiple client sites. Switch between networks instantly and keep scan history separate per site. Perfect for CCTV installers managing multiple locations.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">SAVED SITES</span></div>
+    <div class="mock-body">
+      <div class="site-card" style="border-left:3px solid var(--c2)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="color:#00FF9D;font-size:11px;font-weight:700">Client A - Head Office</div><div style="color:var(--t2);font-size:9px;margin-top:2px">192.168.1.0/24 - Last scan: today</div></div>
+          <span class="mbadge bc">7 RISKS</span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap"><span class="tag tc">10 DEVICES</span><span class="tag tr">2 CAMERAS</span></div>
+      </div>
+      <div class="site-card" style="border-left:3px solid var(--c1)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="color:var(--c1);font-size:11px;font-weight:700">Client B - Retail Store</div><div style="color:var(--t2);font-size:9px;margin-top:2px">10.0.0.0/24 - Last scan: yesterday</div></div>
+          <span class="mbadge bh">3 RISKS</span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap"><span class="tag tc">6 DEVICES</span><span class="tag tr">4 CAMERAS</span></div>
+      </div>
+      <div class="site-card" style="border-left:3px solid var(--warn)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="color:var(--warn);font-size:11px;font-weight:700">Client C - Warehouse</div><div style="color:var(--t2);font-size:9px;margin-top:2px">172.16.0.0/24 - Last scan: 3 days ago</div></div>
+          <span class="mbadge bh">5 RISKS</span>
+        </div>
+        <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap"><span class="tag tc">14 DEVICES</span><span class="tag tr">8 CAMERAS</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">M</div><div><div class="dtitle">MULTIPLE SITES</div><div class="ddesc">Save unlimited client sites with custom names. Each site stores its own scan history, device list and risk profile separately.</div><div class="tags"><span class="tag tc">UNLIMITED</span><span class="tag tg">ORGANISED</span></div></div></div>
+    <div class="ditem"><div class="dicon">Q</div><div><div class="dtitle">QUICK SWITCH</div><div class="ddesc">Switch between client sites instantly from the main menu. No reconfiguration needed - Specter remembers each network.</div><div class="tags"><span class="tag tc">ONE TAP</span></div></div></div>
+    <div class="ditem"><div class="dicon">H</div><div><div class="dtitle">PER-SITE HISTORY</div><div class="ddesc">Each site maintains its own full scan history. Compare scans over time per client and track changes independently.</div><div class="tags"><span class="tag tg">HISTORY</span><span class="tag tc">PER CLIENT</span></div></div></div>
+    <div class="ditem"><div class="dicon">O</div><div><div class="dtitle">SITE OVERVIEW</div><div class="ddesc">Dashboard shows all saved sites with device count, last scan time and current risk summary at a glance.</div><div class="tags"><span class="tag tg">DASHBOARD</span></div></div></div>
+  </div>
+</div>
+
+<div class="feat-sec" id="reports">
+  <div class="fs-head">
+    <div class="fs-icon-box">09</div>
+    <div>
+      <div class="fs-lbl">// 09 REPORTING</div>
+      <h2 class="fs-title">PDF <span>REPORTS</span></h2>
+      <p class="fs-desc">Export professional scan reports as PDF directly from your phone. Full device list, port summary and risk breakdown. Share with clients via WhatsApp, email or any app.</p>
+    </div>
+  </div>
+  <div class="mock">
+    <div class="mock-bar"><div class="dot" style="background:#FF3B5C"></div><div class="dot" style="background:#FFB700"></div><div class="dot" style="background:#00FF9D"></div><span class="mock-lbl">SCAN REPORT</span></div>
+    <div class="mock-body">
+      <div style="border:1px solid var(--bd);border-radius:6px;padding:12px;margin-bottom:10px">
+        <div style="color:var(--c1);font-size:10px;font-weight:700;letter-spacing:2px">SPECTER SCAN REPORT</div>
+        <div style="color:var(--t3);font-size:8px;margin-top:3px">192.168.1.0/24 - 10 devices - 3 Mar 2026</div>
+        <div style="display:flex;gap:8px;margin-top:10px;text-align:center">
+          <div style="flex:1"><div style="color:#00E5FF;font-size:15px;font-weight:700">10</div><div style="color:var(--t3);font-size:7px">DEVICES</div></div>
+          <div style="flex:1"><div style="color:#FFB700;font-size:15px;font-weight:700">27</div><div style="color:var(--t3);font-size:7px">PORTS</div></div>
+          <div style="flex:1"><div style="color:#FF3B5C;font-size:15px;font-weight:700">7</div><div style="color:var(--t3);font-size:7px">RISKS</div></div>
+        </div>
+      </div>
+      <div class="rrow"><div><div class="rt">192.168.1.1 - Gateway</div><div class="rs">Ports: 21,22,23,80,443</div></div><span class="mbadge bc">CRITICAL</span></div>
+      <div class="rrow"><div><div class="rt">192.168.1.136 - Hikvision</div><div class="rs">Ports: 80,443,554,8443</div></div><span class="mbadge bc">CRITICAL</span></div>
+      <div class="rrow"><div><div class="rt">192.168.1.30 - Windows PC</div><div class="rs">Ports: 135,139,445</div></div><span class="mbadge bh">HIGH</span></div>
+      <div class="rrow"><div><div class="rt">192.168.1.49 - Android</div><div class="rs">Ports: 8080</div></div><span class="mbadge bs2">SAFE</span></div>
+      <div style="background:linear-gradient(135deg,#00E5FF,#00FF9D);color:#04080C;font-size:9px;font-weight:700;padding:10px;text-align:center;border-radius:4px;margin-top:10px">EXPORT PDF REPORT</div>
+    </div>
+  </div>
+  <div class="dlist">
+    <div class="ditem"><div class="dicon">P</div><div><div class="dtitle">PDF EXPORT</div><div class="ddesc">Complete PDF generated on your phone. Executive summary, device list with IPs, ports, vendors and risk ratings.</div><div class="tags"><span class="tag tc">PDF FORMAT</span><span class="tag tg">SHAREABLE</span></div></div></div>
+    <div class="ditem"><div class="dicon">S</div><div><div class="dtitle">SHARE INSTANTLY</div><div class="ddesc">Share via WhatsApp, email, Google Drive or any app directly from Specter. No PC needed.</div><div class="tags"><span class="tag tg">WHATSAPP</span><span class="tag tc">EMAIL</span></div></div></div>
+    <div class="ditem"><div class="dicon">L</div><div><div class="dtitle">FULL DEVICE LIST</div><div class="ddesc">Every device with IP, MAC address, vendor, device type, open ports, services and individual risk score.</div><div class="tags"><span class="tag tc">DETAILED</span></div></div></div>
+    <div class="ditem"><div class="dicon">R</div><div><div class="dtitle">RISK SUMMARY</div><div class="ddesc">Report header shows Critical, High, Medium and Low counts for a quick executive overview before the full breakdown.</div><div class="tags"><span class="tag tg">CLIENT READY</span></div></div></div>
+  </div>
+</div>
+
+<div class="cta-bar">
+  <div style="font-size:clamp(18px,5vw,30px);font-weight:700;letter-spacing:3px;margin-bottom:10px">READY TO SCAN YOUR <span style="color:#00E5FF">NETWORK?</span></div>
+  <p style="color:#7A9AB0;font-size:13px;margin-bottom:24px;font-family:sans-serif">Free standalone APK. No root. No account. No Termux.</p>
+  <button class="bp" onclick="window.location='pricing.html'">DOWNLOAD SPECTER APK</button>
+  <a class="bsec" href="index.html">BACK TO HOME</a>
+</div>
+
+<footer>
+  <div class="flo">SPECTER</div>
+  <div class="fsu">NETWORK DIAGNOSTICS</div>
+  <div class="fli">
+    <a href="index.html">HOME</a>
+    <a href="features.html">FEATURES</a>
+    
+    <a href="index.html#download">DOWNLOAD</a>
+  </div>
+  <div class="fco">2026 SPECTER - HAWKSURE SECURITY ANALYTICS</div>
+</footer>
+
+<script>
+function goTo(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    var y = el.getBoundingClientRect().top + window.pageYOffset - 110;
+    window.scrollTo(0, y);
+  }
+}
+</script>
+
+</body>
+</html>

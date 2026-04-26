@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specter — Pricing</title>
+<style>
+:root{--bg:#04080C;--bg2:#0A0E1A;--bg3:#0D1520;--c1:#00E5FF;--c2:#00FF9D;--warn:#FFB700;--danger:#FF3B5C;--t1:#E0F0FF;--t2:#7A9AB0;--t3:#3A5060;--bd:rgba(0,229,255,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:'Courier New',monospace;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(4,8,12,.98);border-bottom:1px solid var(--bd)}
+.logo-text{color:var(--c1);font-size:15px;font-weight:700;letter-spacing:4px}
+.nav-back{border:1px solid var(--bd);color:var(--c1);font-size:10px;font-weight:700;padding:8px 14px;letter-spacing:2px}
+.hero{padding:100px 24px 48px;text-align:center;background:var(--bg2);border-bottom:1px solid var(--bd)}
+.hero-badge{display:inline-block;border:1px solid rgba(0,229,255,.3);color:var(--c1);font-size:9px;letter-spacing:3px;padding:5px 14px;margin-bottom:16px}
+.hero-title{font-size:clamp(28px,8vw,52px);font-weight:700;letter-spacing:5px;background:linear-gradient(135deg,#fff,var(--c1));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:var(--t2);font-size:12px;letter-spacing:1px;margin-top:10px;font-family:sans-serif;line-height:1.6}
+.plans{padding:40px 20px;display:flex;flex-direction:column;gap:20px;max-width:480px;margin:0 auto}
+
+/* CARD */
+.card{border:1px solid var(--bd);border-radius:12px;overflow:hidden;background:var(--bg2)}
+.card.featured{border-color:var(--c1);box-shadow:0 0 30px rgba(0,229,255,0.08)}
+.card.pro-card{border-color:var(--warn);box-shadow:0 0 30px rgba(255,183,0,0.08)}
+.card-head{padding:24px 20px 20px}
+.card-badge{font-size:8px;letter-spacing:3px;padding:3px 10px;border-radius:2px;display:inline-block;margin-bottom:12px}
+.cb-free{background:rgba(0,229,255,.1);color:var(--c1);border:1px solid rgba(0,229,255,.2)}
+.cb-home{background:rgba(0,255,157,.1);color:var(--c2);border:1px solid rgba(0,255,157,.2)}
+.cb-pro{background:rgba(255,183,0,.1);color:var(--warn);border:1px solid rgba(255,183,0,.2)}
+.popular-tag{background:var(--warn);color:#04080C;font-size:8px;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:2px;display:inline-block;margin-left:8px;vertical-align:middle}
+.card-name{font-size:22px;font-weight:700;letter-spacing:3px;margin-bottom:6px}
+.card-desc{color:var(--t2);font-size:11px;font-family:sans-serif;line-height:1.6}
+.price-row{display:flex;align-items:baseline;gap:6px;margin:16px 0 4px}
+.price-amt{font-size:38px;font-weight:700;letter-spacing:-1px}
+.price-free{color:var(--c1)}
+.price-home{color:var(--c2)}
+.price-pro{color:var(--warn)}
+.price-cur{font-size:14px;color:var(--t2);margin-right:2px}
+.price-note{color:var(--t3);font-size:9px;letter-spacing:2px}
+.card-divider{height:1px;background:var(--bd);margin:0 20px}
+.card-features{padding:20px}
+.feat-label{color:var(--t3);font-size:8px;letter-spacing:3px;margin-bottom:12px}
+.frow{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.fcheck{font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.fcheck.yes{color:var(--c2)}
+.fcheck.no{color:var(--t3)}
+.fcheck.warn{color:var(--warn)}
+.ftext{font-size:11px;font-family:sans-serif;line-height:1.5}
+.ftext.muted{color:var(--t3)}
+.card-cta{padding:0 20px 24px}
+.btn-free{display:block;border:1px solid var(--bd);color:var(--c1);font-size:11px;font-weight:700;letter-spacing:2px;padding:14px;text-align:center;border-radius:4px;font-family:'Courier New',monospace}
+.btn-home{display:block;background:rgba(0,255,157,.1);border:1px solid var(--c2);color:var(--c2);font-size:11px;font-weight:700;letter-spacing:2px;padding:14px;text-align:center;border-radius:4px;font-family:'Courier New',monospace}
+.btn-pro{display:block;background:linear-gradient(135deg,var(--warn),#FF6B35);color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:14px;text-align:center;border-radius:4px;font-family:'Courier New',monospace}
+
+/* COMPARE TABLE */
+.compare{padding:40px 20px;max-width:480px;margin:0 auto}
+.compare-title{color:var(--t3);font-size:9px;letter-spacing:3px;margin-bottom:16px;text-align:center}
+.ctable{width:100%;border-collapse:collapse}
+.ctable th{padding:10px 8px;font-size:9px;letter-spacing:2px;text-align:center;border-bottom:1px solid var(--bd);color:var(--t2)}
+.ctable th:first-child{text-align:left}
+.ctable td{padding:10px 8px;font-size:10px;text-align:center;border-bottom:1px solid rgba(0,229,255,.04);font-family:sans-serif}
+.ctable td:first-child{text-align:left;color:var(--t2);font-size:10px}
+.ctable tr:last-child td{border-bottom:none}
+.tick{color:var(--c2);font-weight:700}
+.cross{color:var(--t3)}
+.partial{color:var(--warn);font-size:9px}
+
+/* FAQ */
+.faq{padding:40px 20px 20px;max-width:480px;margin:0 auto}
+.faq-title{color:var(--t3);font-size:9px;letter-spacing:3px;margin-bottom:20px;text-align:center}
+.faq-item{border:1px solid var(--bd);border-radius:6px;padding:16px;margin-bottom:10px;background:var(--bg2)}
+.faq-q{color:var(--c1);font-size:11px;font-weight:700;margin-bottom:6px}
+.faq-a{color:var(--t2);font-size:11px;font-family:sans-serif;line-height:1.6}
+
+/* FOOTER */
+.cta-bottom{background:var(--bg2);border-top:1px solid var(--bd);padding:40px 24px;text-align:center}
+footer{border-top:1px solid var(--bd);padding:28px 24px;background:var(--bg2);text-align:center}
+.flo{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:4px}
+.fsu{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px;margin-bottom:16px}
+.fli{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.fli a{color:var(--t3);font-size:10px}
+.fco{color:var(--t3);font-size:9px;margin-top:16px}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" style="display:flex;align-items:center;gap:8px">
+    <span style="color:var(--c1);font-size:18px">&#9672;</span>
+    <span class="logo-text">SPECTER</span>
+  </a>
+  <a class="nav-back" href="index.html">&#8592; HOME</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">&#9672; CHOOSE YOUR PLAN</div>
+  <h1 class="hero-title">PRICING</h1>
+  <p class="hero-sub">Simple monthly subscription. Cancel anytime.<br>Full access from day one — start free for 14 days.</p>
+</div>
+
+<div class="plans">
+
+  <!-- FREE -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-badge cb-free">FREE</div>
+      <div class="card-name" style="color:var(--c1)">FREE</div>
+      <div class="card-desc">Get started with basic network scanning. Perfect for trying out Specter before upgrading.</div>
+      <div class="price-row">
+        <span class="price-cur">R</span>
+        <span class="price-amt price-free">0</span>
+      </div>
+      <div class="price-note">ALWAYS FREE</div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-features">
+      <div class="feat-label">WHAT YOU GET</div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Quick scan — find devices on your network</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Basic device list with IP addresses</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Device type detection (camera, PC, router)</span></div>
+      <div class="frow"><span class="fcheck warn">~</span><span class="ftext">Limited to 10 devices per scan</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">Port scanning</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">Risk assessment &amp; CVE alerts</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">PDF reports</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">Multi-site management</span></div>
+    </div>
+    <div class="card-cta">
+      <a class="btn-free" href="https://specter.co.za/upgrade?tier=free" target="_blank">&#11015; START FREE TRIAL — 14 DAYS</a>
+      <div style="font-size:9px;color:rgba(255,255,255,.35);text-align:center;margin-top:6px;letter-spacing:1px">NO CREDIT CARD REQUIRED</div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="card featured">
+    <div class="card-head">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+        <div class="card-badge cb-home" style="margin-bottom:0">HOME</div>
+        <span class="popular-tag">MOST POPULAR</span>
+      </div>
+      <div class="card-name" style="color:var(--c2)">HOME</div>
+      <div class="card-desc">Full scanning power for homeowners and small offices. Know exactly what is on your network.</div>
+      <div class="price-row">
+        <span class="price-cur">R</span>
+        <span class="price-amt price-home">99</span>
+      </div>
+      <div class="price-note">ONE-OFF PAYMENT</div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-features">
+      <div class="feat-label">EVERYTHING IN FREE PLUS</div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Quick + Deep scan — full port analysis</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Unlimited devices per scan</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">30+ ports scanned with service labels</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Risk scoring — Critical, High, Medium, Low</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Scan history — last 5 scans</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Network map topology view</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Ping, traceroute &amp; DNS diagnostics</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">PDF report export</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">Multi-site management</span></div>
+      <div class="frow"><span class="fcheck no">&#10007;</span><span class="ftext muted">CVE database &amp; default cred alerts</span></div>
+    </div>
+    <div class="card-cta">
+      <a class="btn-home" href="https://specter.co.za/upgrade?tier=home" target="_blank">⚡ SUBSCRIBE HOME — R99/mo</a>
+      <div style="font-size:9px;color:rgba(255,255,255,.35);text-align:center;margin-top:6px;letter-spacing:1px">BILLED MONTHLY · CANCEL ANYTIME</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.35);text-align:center;margin-top:6px;letter-spacing:1px">BILLED MONTHLY · CANCEL ANYTIME</div>
+    </div>
+  </div>
+
+  <!-- PRO -->
+  <div class="card pro-card">
+    <div class="card-head">
+      <div class="card-badge cb-pro">PRO</div>
+      <div class="card-name" style="color:var(--warn)">PRO</div>
+      <div class="card-desc">The full toolkit for CCTV installers and IT professionals. Every feature unlocked. Built for daily use on client sites.</div>
+      <div class="price-row">
+        <span class="price-cur">R</span>
+        <span class="price-amt price-pro">499</span>
+      </div>
+      <div class="price-note">BILLED MONTHLY · CANCEL ANYTIME</div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-features">
+      <div class="feat-label">EVERYTHING IN HOME PLUS</div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">PDF report export &amp; share via WhatsApp</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">CVE vulnerability database</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Default credential alerts (Hikvision, Dahua, TP-Link)</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Multi-site management — unlimited client sites</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Unlimited scan history per site</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">New device &amp; rogue connection alerts</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Web UI access — open camera or router admin</span></div>
+      <div class="frow"><span class="fcheck yes">&#10003;</span><span class="ftext">Priority support from Hawksure</span></div>
+    </div>
+    <div class="card-cta">
+      <a class="btn-pro" href="https://specter.co.za/upgrade?tier=pro" target="_blank">⚡ SUBSCRIBE PRO — R499/mo</a>
+      <div style="font-size:9px;color:rgba(255,255,255,.35);text-align:center;margin-top:6px;letter-spacing:1px">BILLED MONTHLY · CANCEL ANYTIME</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.35);text-align:center;margin-top:6px;letter-spacing:1px">BILLED MONTHLY · CANCEL ANYTIME</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPARE TABLE -->
+<div class="compare">
+  <div class="compare-title">FULL FEATURE COMPARISON</div>
+  <table class="ctable">
+    <thead>
+      <tr>
+        <th>FEATURE</th>
+        <th style="color:var(--c1)">FREE</th>
+        <th style="color:var(--c2)">HOME</th>
+        <th style="color:var(--warn)">PRO</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Quick Scan</td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Deep Scan</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Device limit</td><td><span class="partial">10 max</span></td><td><span class="tick">Unlimited</span></td><td><span class="tick">Unlimited</span></td></tr>
+      <tr><td>Port Scanning</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Risk Scoring</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Network Map</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Diagnostics</td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Scan History</td><td><span class="cross">&#10007;</span></td><td><span class="partial">5 scans</span></td><td><span class="tick">Unlimited</span></td></tr>
+      <tr><td>CVE Alerts</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Default Cred Alerts</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>PDF Reports</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Multi-Site</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td>Priority Support</td><td><span class="cross">&#10007;</span></td><td><span class="cross">&#10007;</span></td><td><span class="tick">&#10003;</span></td></tr>
+      <tr><td style="font-weight:700;color:var(--t1)">PRICE</td><td style="color:var(--c1);font-weight:700">R0</td><td style="color:var(--c2);font-weight:700">R99<span style="font-size:11px;opacity:0.7">/mo</span></td><td style="color:var(--warn);font-weight:700">R499<span style="font-size:11px;opacity:0.7">/mo</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- FAQ -->
+<div class="faq">
+  <div class="faq-title">COMMON QUESTIONS</div>
+  <div class="faq-item">
+    <div class="faq-q">Is this a monthly subscription payment or subscription?</div>
+    <div class="faq-a">Specter uses simple monthly subscriptions. You're billed automatically each month via PayFast. Cancel anytime — no contracts, no penalties. When you cancel, your access continues until the end of the billing period.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">How do I receive my APK after payment?</div>
+    <div class="faq-a">After payment confirmation we will send your licensed APK directly to your email within 24 hours.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Can I upgrade from Home to Pro later?</div>
+    <div class="faq-a">Yes. Contact us and we will charge you the difference — R400 — to upgrade from Home to Pro at any time.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Does Specter work without internet?</div>
+    <div class="faq-a">Yes. Specter runs fully offline on your local network. No internet connection required to scan.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">What Android version is required?</div>
+    <div class="faq-a">Specter requires Android 8.0 or higher. No root required. Works on any Android phone or tablet.</div>
+  </div>
+</div>
+
+<div class="cta-bottom">
+  <div style="color:var(--t2);font-size:11px;font-family:sans-serif;margin-bottom:16px">Questions? Contact Hawksure directly</div>
+  <a href="mailto:info@hawksure.co.za" style="border:1px solid var(--bd);color:var(--c1);font-size:11px;font-weight:700;letter-spacing:2px;padding:13px 24px;display:inline-block;margin:4px;font-family:'Courier New',monospace">&#9993; EMAIL US</a>
+  <a href="index.html" style="background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:13px 24px;display:inline-block;margin:4px;font-family:'Courier New',monospace">&#8592; BACK TO HOME</a>
+</div>
+
+<footer>
+  <div class="flo">SPECTER</div>
+  <div class="fsu">NETWORK DIAGNOSTICS</div>
+  <div class="fli">
+    <a href="index.html">HOME</a>
+    <a href="features.html">FEATURES</a>
+    <a href="pricing.html">PRICING</a>
+    
+  </div>
+  <div class="fco">2026 SPECTER - HAWKSURE SECURITY ANALYTICS</div>
+</footer>
+
+</body>
+</html>

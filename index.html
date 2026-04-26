@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Specter — Network Diagnostics</title>
+<style>
+:root{--bg:#04080C;--bg2:#0A0E1A;--bg3:#0D1520;--c1:#00E5FF;--c2:#00FF9D;--warn:#FFB700;--danger:#FF3B5C;--t1:#E0F0FF;--t2:#7A9AB0;--t3:#3A5060;--bd:rgba(0,229,255,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:'Courier New',monospace;overflow-x:hidden}a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(4,8,12,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.logo{display:flex;align-items:center;gap:10px}.logo-icon{color:var(--c1);font-size:20px}.logo-text{color:var(--c1);font-size:16px;font-weight:700;letter-spacing:4px}.logo-sub{color:var(--t3);font-size:8px;letter-spacing:3px;margin-top:2px}
+.nav-links{display:flex;gap:28px}.nav-links a{color:var(--t2);font-size:10px;letter-spacing:2px;transition:.2s}.nav-links a:hover{color:var(--c1)}
+.nav-cta{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:10px;font-weight:700;letter-spacing:2px;padding:9px 20px;clip-path:polygon(7px 0%,100% 0%,calc(100% - 7px) 100%,0% 100%)}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:110px 40px 70px;text-align:center;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:40px 40px}
+.hero-glow{position:absolute;top:15%;left:50%;transform:translateX(-50%);width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.07) 0%,transparent 70%);pointer-events:none}
+.badge{display:inline-block;border:1px solid rgba(0,229,255,.3);color:var(--c1);font-size:9px;letter-spacing:3px;padding:5px 14px;margin-bottom:22px;position:relative;z-index:1}
+.hero-icon{color:var(--c1);font-size:56px;margin-bottom:12px;position:relative;z-index:1}
+h1{font-size:clamp(48px,10vw,96px);font-weight:700;letter-spacing:10px;background:linear-gradient(135deg,#fff 0%,var(--c1) 50%,var(--c2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;z-index:1;line-height:1}
+.hero-sub{color:var(--t2);font-size:11px;letter-spacing:3px;margin-top:12px;position:relative;z-index:1}
+.hero-desc{max-width:520px;color:var(--t2);font-size:13px;line-height:1.8;margin:20px auto 32px;font-family:sans-serif;position:relative;z-index:1}
+.btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.bp{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:11px;font-weight:700;letter-spacing:2px;padding:13px 28px;clip-path:polygon(9px 0%,100% 0%,calc(100% - 9px) 100%,0% 100%);display:inline-flex;align-items:center;gap:6px}
+.bs{border:1px solid var(--bd);color:var(--c1);font-size:11px;letter-spacing:2px;padding:13px 28px;display:inline-flex;align-items:center;gap:6px}
+.bv{border:1px solid rgba(180,127,255,.35);color:#b47fff;font-size:11px;letter-spacing:2px;padding:13px 28px;display:inline-flex;align-items:center;gap:6px}
+.term{display:inline-block;background:var(--bg3);border:1px solid var(--bd);padding:10px 18px;font-size:11px;color:var(--c2);margin-top:20px;position:relative;z-index:1}
+.phones{display:flex;justify-content:center;align-items:flex-end;gap:18px;margin-top:52px;position:relative;z-index:1;flex-wrap:wrap}
+.ph{width:170px;background:var(--bg2);border:1px solid var(--bd);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;flex-shrink:0}
+.ph.main{width:210px;transform:translateY(-18px);box-shadow:0 28px 80px rgba(0,229,255,.12),0 0 0 1px rgba(0,229,255,.2)}
+.notch{height:22px;background:var(--bg);margin:7px auto;width:55%;border-radius:11px}
+.ps{padding:10px}.pl{color:var(--c1);font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:7px}
+.pst{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:8px}
+.psc{background:var(--bg3);padding:5px;border-radius:3px;text-align:center}
+.pn{font-size:14px;font-weight:700}.plb{color:var(--t3);font-size:6px;letter-spacing:1px}
+.pd{background:var(--bg3);border-radius:5px;padding:7px;margin-bottom:5px;border-left:2px solid var(--c1)}
+.pd.cam{border-left-color:var(--danger)}.pd.win{border-left-color:var(--warn)}.pd.gw{border-left-color:var(--c2)}
+.pi{font-size:8px;font-weight:700}.pdn{color:var(--t2);font-size:7px;margin-top:1px}
+.pp2{display:flex;gap:2px;margin-top:3px;flex-wrap:wrap}
+.pt{background:rgba(0,229,255,.1);color:var(--c1);font-size:5px;padding:1px 3px;border-radius:2px}
+.pt.r{background:rgba(255,59,92,.15);color:var(--danger)}
+.sb{background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:7px;font-weight:700;padding:5px;border-radius:3px;text-align:center;margin-bottom:5px}
+.prg{height:2px;background:var(--t3);border-radius:1px;margin-bottom:6px}
+.prf{height:100%;width:65%;background:linear-gradient(90deg,var(--c1),var(--c2));border-radius:1px}
+@keyframes sl{0%{transform:translateY(-100%);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(500%);opacity:0}}
+.sl{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c1),transparent);animation:sl 3s ease-in-out infinite;pointer-events:none}
+.sbar{display:flex;justify-content:center;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);background:var(--bg2);flex-wrap:wrap}
+.si{flex:1;min-width:120px;max-width:180px;padding:24px 16px;text-align:center;border-right:1px solid var(--bd)}.si:last-child{border-right:none}
+.sn{font-size:30px;font-weight:700;color:var(--c1);letter-spacing:2px}.slb{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px}
+.sec{padding:80px 40px;max-width:1060px;margin:0 auto}
+.sl2{color:var(--c1);font-size:9px;letter-spacing:4px;margin-bottom:10px}
+.stl{font-size:clamp(22px,4vw,40px);font-weight:700;letter-spacing:4px}.stl span{color:var(--c1)}
+.sd{color:var(--t2);font-size:13px;line-height:1.8;max-width:540px;margin-top:14px;font-family:sans-serif}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;margin-top:48px;border:1px solid var(--bd)}
+.fc{background:var(--bg2);padding:30px 28px;transition:background .2s;display:block}.fc:hover{background:var(--bg3)}
+.fi{font-size:24px;margin-bottom:12px}.ft{color:var(--t1);font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:8px}
+.fd{color:var(--t2);font-size:12px;line-height:1.7;font-family:sans-serif}
+.ftg{display:inline-block;margin-top:10px;font-size:8px;letter-spacing:2px;padding:2px 8px;border:1px solid rgba(0,229,255,.2);color:var(--c1)}
+.how{background:var(--bg2);padding:80px 40px}.how-i{max-width:1060px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:24px;margin-top:48px}
+.step{position:relative;padding:28px 24px;border:1px solid var(--bd);background:var(--bg)}
+.step::before{content:attr(data-n);position:absolute;top:-1px;left:-1px;background:linear-gradient(135deg,var(--c1),var(--c2));color:#04080C;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px}
+.sti{font-size:28px;margin-bottom:12px;margin-top:6px}.stt{color:var(--t1);font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:8px}
+.std{color:var(--t2);font-size:12px;line-height:1.7;font-family:sans-serif}
+.dlb{margin-top:48px;padding:52px 40px;border:1px solid var(--bd);background:var(--bg2);position:relative;overflow:hidden;text-align:center}
+.dlb::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--c1),var(--c2),transparent)}
+.dlg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.05) 0%,transparent 70%);pointer-events:none}
+.dlt{font-size:clamp(20px,3vw,36px);font-weight:700;letter-spacing:4px;position:relative;z-index:1}
+.dld{color:var(--t2);font-size:13px;margin:12px 0 28px;font-family:sans-serif;position:relative;z-index:1}
+.dlbs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.reqs{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:28px;position:relative;z-index:1}
+.req{display:flex;align-items:center;gap:6px;color:var(--t2);font-size:11px}.rdot{width:5px;height:5px;border-radius:50%;background:var(--c2)}
+footer{border-top:1px solid var(--bd);padding:32px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;background:var(--bg2)}
+.flo{color:var(--c1);font-size:13px;font-weight:700;letter-spacing:4px}.fsu{color:var(--t3);font-size:9px;letter-spacing:2px;margin-top:3px}
+.fli{display:flex;gap:20px}.fli a{color:var(--t3);font-size:10px;letter-spacing:1px;transition:.2s}.fli a:hover{color:var(--c1)}
+.fco{color:var(--t3);font-size:9px}
+@media(max-width:768px){nav{padding:12px 20px}.nav-links{display:none}.sec{padding:60px 20px}.how{padding:60px 20px}.dlb{padding:36px 20px}footer{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html"><span class="logo-icon">◈</span><div><div class="logo-text">SPECTER</div><div class="logo-sub">NETWORK DIAGNOSTICS</div></div></a>
+  <div class="nav-links"><a href="index.html">HOME</a><a href="features.html">FEATURES</a><a href="demo.html">DEMO</a><a href="#how">HOW IT WORKS</a><a href="#download">DOWNLOAD</a></div>
+  <button class="nav-cta" onclick="window.location='pricing.html'" style="cursor:pointer">⬇ GET APK</button>
+</nav>
+
+<div class="hero">
+  <div class="hero-grid"></div><div class="hero-glow"></div>
+  <div class="badge">◈ STANDALONE ANDROID APK — NO ROOT REQUIRED</div>
+  <div class="hero-icon">◈</div>
+  <h1>SPECTER</h1>
+  <div class="hero-sub">NETWORK DIAGNOSTICS &amp; SECURITY SCANNER</div>
+  <p class="hero-desc">Instantly scan your network, detect every connected device, identify open ports and assess security risks — all from your Android phone.</p>
+  <div class="btns">
+    <button class="bp" onclick="window.location='pricing.html'">⬇ DOWNLOAD APK</button>
+    <a class="bv" href="features.html">🔍 EXPLORE FEATURES</a>
+    <a class="bs" href="#how">HOW IT WORKS →</a>
+  </div>
+  <div class="term"><span style="color:#3A5060">$</span> scanning 192.168.1.0/24 — 10 devices found • 7 risks</div>
+  <div class="phones">
+    <div class="ph" style="transform:translateY(10px) rotate(-4deg)">
+      <div class="notch"></div><div class="ps"><div class="pl">◈ SPECTER</div>
+      <div class="pst"><div class="psc"><div class="pn" style="color:#00E5FF">10</div><div class="plb">DEVICES</div></div><div class="psc"><div class="pn" style="color:#00FF9D">10</div><div class="plb">ONLINE</div></div><div class="psc"><div class="pn" style="color:#FFB700">27</div><div class="plb">PORTS</div></div><div class="psc"><div class="pn" style="color:#FF3B5C">7</div><div class="plb">RISKS</div></div></div>
+      <div class="pd cam"><div class="pi" style="color:#FF3B5C">192.168.1.136 ⚠</div><div class="pdn">Hikvision Camera</div><div class="pp2"><span class="pt r">80/</span><span class="pt r">554/</span></div></div>
+      <div class="pd gw"><div class="pi" style="color:#00FF9D">192.168.1.1 🌐</div><div class="pdn">Network Gateway</div><div class="pp2"><span class="pt">80/</span><span class="pt">443/</span></div></div>
+    </div></div>
+    <div class="ph main"><div class="sl"></div><div class="notch"></div><div class="ps"><div class="pl">◈ SPECTER</div>
+      <div class="sb">⚡ QUICK SCAN</div><div class="prg"><div class="prf"></div></div>
+      <div style="color:#7A9AB0;font-size:7px;margin-bottom:7px">Scanning 192.168.1.0/24 — 120/254, 7 found...</div>
+      <div class="pd gw"><div class="pi" style="color:#00FF9D">192.168.1.1 🌐</div><div class="pdn">Router / Gateway</div><div class="pp2"><span class="pt r">22/</span><span class="pt r">23/</span><span class="pt">80/</span></div></div>
+      <div class="pd win"><div class="pi" style="color:#FFB700">192.168.1.30 ⚠</div><div class="pdn">Windows PC</div><div class="pp2"><span class="pt r">445/</span><span class="pt">8080/</span></div></div>
+      <div class="pd cam"><div class="pi" style="color:#FF3B5C">192.168.1.136 ⚠</div><div class="pdn">Hikvision Camera</div><div class="pp2"><span class="pt">80/</span><span class="pt r">554/</span></div></div>
+    </div></div>
+    <div class="ph" style="transform:translateY(10px) rotate(4deg)"><div class="notch"></div><div class="ps">
+      <div class="pl" style="margin-bottom:7px">DIAGNOSTICS</div>
+      <div style="background:#0D1520;padding:7px;border-radius:4px;margin-bottom:5px"><div style="color:#3A5060;font-size:6px">PING RESULTS</div><div style="color:#00FF9D;font-size:8px;margin-top:2px">4ms avg • Excellent</div></div>
+      <div style="background:#0D1520;padding:7px;border-radius:4px"><div style="color:#3A5060;font-size:6px">OPEN PORTS</div><div class="pp2" style="margin-top:3px"><span class="pt r">22/SSH</span><span class="pt">80/HTTP</span><span class="pt r">554/RTSP</span></div></div>
+    </div></div>
+  </div>
+</div>
+
+<div class="sbar">
+  <div class="si"><div class="sn">254</div><div class="slb">IPs SCANNED</div></div>
+  <div class="si"><div class="sn" style="color:#00FF9D">30+</div><div class="slb">PORTS CHECKED</div></div>
+  <div class="si"><div class="sn" style="color:#FFB700">100+</div><div class="slb">DEVICE TYPES</div></div>
+  <div class="si"><div class="sn" style="color:#FF3B5C">0</div><div class="slb">ROOT REQUIRED</div></div>
+</div>
+
+<div class="sec">
+  <div class="sl2">// CAPABILITIES</div>
+  <h2 class="stl">EVERYTHING YOU NEED TO<br><span>SECURE YOUR NETWORK</span></h2>
+  <p class="sd">Professional-grade network scanning tools for security installers, IT professionals, and network engineers.</p>
+  <div class="fg">
+    <a class="fc" href="features.html#scan"><div class="fi">⚡</div><div class="ft">QUICK &amp; DEEP SCAN</div><div class="fd">Two modes for every situation. Ping sweep for speed, full port analysis for depth. Real-time results.</div><span class="ftg">LEARN MORE →</span></a>
+    <a class="fc" href="features.html#devices"><div class="fi">📡</div><div class="ft">DEVICE DETECTION</div><div class="fd">Auto-identifies 100+ device types including Hikvision, Dahua, HiLook cameras, Windows PCs, smart TVs.</div><span class="ftg">LEARN MORE →</span></a>
+    <a class="fc" href="features.html#ports"><div class="fi">🔌</div><div class="ft">PORT SCANNING</div><div class="fd">30+ common ports per device. HTTP, HTTPS, SSH, Telnet, RTSP, SMB, RDP — labelled with service names.</div><span class="ftg">LEARN MORE →</span></a>
+    <a class="fc" href="features.html#risk"><div class="fi">⚠</div><div class="ft">RISK ASSESSMENT</div><div class="fd">Risk score 0-100 per device. Based on CVEs, dangerous ports and default credentials.</div><span class="ftg">LEARN MORE →</span></a>
+    <a class="fc" href="features.html#map"><div class="fi">🗺</div><div class="ft">NETWORK MAP</div><div class="fd">Visual topology of all devices, colour-coded by risk. Tap any node to inspect device details.</div><span class="ftg">LEARN MORE →</span></a>
+    <a class="fc" href="features.html#diag"><div class="fi">📊</div><div class="ft">DIAGNOSTICS</div><div class="fd">Built-in ping, traceroute, DNS lookup and Web UI access per device. Full toolkit in one tap.</div><span class="ftg">LEARN MORE →</span></a>
+  </div>
+  <div style="text-align:center;margin-top:32px"><a class="bv" href="features.html">🔍 VIEW FULL FEATURE GUIDE →</a></div>
+</div>
+
+<div class="how" id="how"><div class="how-i">
+  <div class="sl2">// WORKFLOW</div>
+  <h2 class="stl">HOW <span>SPECTER</span> WORKS</h2>
+  <p class="sd">Up and running in seconds. No configuration, no root, no extra apps.</p>
+  <div class="steps">
+    <div class="step" data-n="01"><div class="sti">📲</div><div class="stt">INSTALL APK</div><div class="std">Download and install directly on Android. No Play Store, no root, no extra apps required.</div></div>
+    <div class="step" data-n="02"><div class="sti">📶</div><div class="stt">CONNECT TO WIFI</div><div class="std">Connect to the network to scan. Specter auto-detects your subnet and local IP address.</div></div>
+    <div class="step" data-n="03"><div class="sti">⚡</div><div class="stt">START SCANNING</div><div class="std">Tap QUICK or DEEP scan. Devices appear in real-time as Specter sweeps the network.</div></div>
+    <div class="step" data-n="04"><div class="sti">🔐</div><div class="stt">REVIEW RESULTS</div><div class="std">See devices, ports, risk scores and alerts. Tap any device to run full diagnostics.</div></div>
+  </div>
+</div></div>
+
+<div class="sec" id="download">
+  <div class="sl2">// GET STARTED</div>
+  <h2 class="stl">DOWNLOAD <span>SPECTER</span></h2>
+  <p class="sd" style="margin:12px auto">Free standalone APK. No account required.</p>
+  <div class="dlb"><div class="dlg"></div>
+    <div style="font-size:44px;margin-bottom:14px;position:relative;z-index:1">◈</div>
+    <div class="dlt">SPECTER APK</div>
+    <div style="color:#3A5060;font-size:9px;letter-spacing:2px;margin-top:7px;position:relative;z-index:1">NETWORK DIAGNOSTICS FOR ANDROID</div>
+    <p class="dld">Standalone APK — installs in seconds, works on any WiFi.<br>Android 5.0+. No internet required after install.</p>
+    <div class="dlbs">
+      <button class="bp" onclick="window.location='pricing.html'">⬇ DOWNLOAD LATEST APK</button>
+      
+    </div>
+    <div class="reqs"><div class="req"><div class="rdot"></div>Android 5.0+</div><div class="req"><div class="rdot"></div>No root required</div><div class="req"><div class="rdot"></div>WiFi access</div><div class="req"><div class="rdot"></div>~15MB</div></div>
+    <div style="color:#3A5060;font-size:9px;margin-top:20px;position:relative;z-index:1">Open source · Built with Python, Flask &amp; Android</div>
+  </div>
+</div>
+
+<footer>
+  <div><div class="flo">◈ SPECTER</div><div class="fsu">NETWORK DIAGNOSTICS</div></div>
+  <div class="fli"><a href="index.html">HOME</a><a href="features.html">FEATURES</a><a href="demo.html">DEMO</a><a href="#how">HOW IT WORKS</a><a href="#download">DOWNLOAD</a></div>
+  <div class="fco">© 2026 SPECTER — HAWKSURE SECURITY ANALYTICS</div>
+</footer>
+</body></html>
