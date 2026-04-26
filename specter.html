@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="specter_icon_512.png">
-<link rel="shortcut icon" type="image/png" href="specter_icon_512.png">
+<link rel="icon" type="image/png" href="https://hawksuresecurityanalytics.github.io/Specter-website/specter_icon_512.png">
+<link rel="shortcut icon" type="image/png" href="https://hawksuresecurityanalytics.github.io/Specter-website/specter_icon_512.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Specter — Network Diagnostics</title>
 <style>
@@ -443,18 +443,9 @@ button.fc:active { background:var(--bg3); }
 
 
 <nav>
-  <button type="button" onclick="showPage('home')" style="display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:0">
-    <span style="color:#00E5FF;font-size:18px">◈</span>
-    <div style="text-align:left">
-      <div style="color:#00E5FF;font-size:14px;font-weight:700;letter-spacing:4px;font-family:'Courier New',monospace">SPECTER</div>
-      <div style="color:#3A5060;font-size:7px;letter-spacing:3px;font-family:'Courier New',monospace">NETWORK DIAGNOSTICS</div>
-    </div>
-  </button>
-  <div style="display:flex;gap:16px">
-    <button type="button" onclick="showPage('features')" style="background:none;border:none;color:#7A9AB0;font-size:10px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;padding:4px 0">FEATURES</button>
-    <button type="button" onclick="showPage('demo')"     style="background:none;border:none;color:#7A9AB0;font-size:10px;letter-spacing:2px;font-family:'Courier New',monospace;cursor:pointer;padding:4px 0">DEMO</button>
-  </div>
-  <button type="button" onclick="showPage('pricing')" style="background:linear-gradient(135deg,#00E5FF,#00FF9D);color:#04080C;font-size:10px;font-weight:700;letter-spacing:2px;padding:9px 14px;border:none;font-family:'Courier New',monospace;cursor:pointer">⬇ GET APK</button>
+  <a class="logo" href="index.html"><span class="logo-icon">◈</span><div><div class="logo-text">SPECTER</div><div class="logo-sub">NETWORK DIAGNOSTICS</div></div></a>
+  <div class="nav-links"><a href="index.html">HOME</a><a href="features.html">FEATURES</a><a href="demo.html">DEMO</a><a href="pricing.html">PRICING</a></div>
+  <button class="nav-cta" onclick="window.location='pricing.html'" style="cursor:pointer">⬇ GET APP</button>
 </nav>
 
 
